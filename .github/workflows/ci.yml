@@ -18,7 +18,8 @@ jobs:
     - name: Set up Homebrew
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        brew shellenv | sed 's/^export //' >> $GITHUB_ENV
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $GITHUB_ENV
+        eval "$(/opt/homebrew/bin/brew shellenv)"
     
     - name: Install dependencies
       run: |
