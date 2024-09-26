@@ -1,4 +1,4 @@
-<img src="./images/logo.pdf" alt="Mac Storage Manager Logo" width="250"/>
+<img src="./images/logo.png" alt="Mac Storage Manager Logo" width="250"/>
 
 # Mac Storage Manager
 
