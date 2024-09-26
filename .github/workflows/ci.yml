@@ -12,16 +12,20 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
     - name: Set up Homebrew
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $GITHUB_ENV
-        eval "$(/opt/homebrew/bin/brew shellenv)"
+        brew shellenv | sed 's/^export //g' >> $GITHUB_ENV
     
-    - name: Install jq
-      run: brew install jq
+    - name: Install dependencies
+      run: |
+        brew install parallel jq
+
+    - name: Suppress GNU Parallel Citation Notice
+      run: parallel --citation
 
     - name: Make script executable
       run: chmod +x ./application_size_checker.sh
