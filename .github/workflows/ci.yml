@@ -27,9 +27,8 @@ jobs:
         brew install parallel jq
 
     - name: Suppress GNU Parallel Citation Notice
-      env:
-        PATH: /opt/homebrew/bin:$PATH
-      run: parallel --citation
+      run: |
+        echo 'will cite' | parallel --citation
 
     - name: Make script executable
       run: chmod +x ./application_size_checker.sh
