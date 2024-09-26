@@ -12,6 +12,8 @@ This guide helps you determine the size of all installed applications, programs,
 - Step 4: Install Necessary Dependencies
 - Step 5: Run the Script
 - Step 6: Verify the Results
+- Dependencies
+- Suppressing GNU Parallel Citation Notices
 - License
 
 ## Step 1: Create the Script with nano
@@ -179,6 +181,26 @@ Execute the script by running:
 ## Step 6: Verify the Results
 
 After the script has finished running, you will find a file named `application_size_sorted.txt` on your Desktop. This file contains a complete list of all detected applications and packages with their respective sizes, sorted in descending order.
+
+## Dependencies
+
+This script utilizes the following tools:
+
+- **GNU Parallel:** A shell tool for executing jobs in parallel. [https://www.gnu.org/software/parallel/](https://www.gnu.org/software/parallel/)
+- **jq:** A lightweight and flexible command-line JSON processor. [https://stedolan.github.io/jq/](https://stedolan.github.io/jq/)
+- **Homebrew:** A package manager for macOS. [https://brew.sh/](https://brew.sh/)
+
+**Note:** Ensure these dependencies are installed before running the script.
+
+## Suppressing GNU Parallel Citation Notices
+
+When running the script for the first time, you might encounter citation notices from GNU Parallel. To suppress these messages, execute the following command in your Terminal:
+
+```zsh
+parallel --citation
+```
+
+Note: This command only needs to be run once.
 
 ## License
 
