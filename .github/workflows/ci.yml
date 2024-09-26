@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Homebrew
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $GITHUB_ENV
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    
+    - name: Install jq
+      run: brew install jq
+
+    - name: Make script executable
+      run: chmod +x ./application_size_checker.sh
+
+    - name: Run script
+      run: ./application_size_checker.sh
+
