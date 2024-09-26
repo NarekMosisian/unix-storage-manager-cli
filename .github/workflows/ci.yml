@@ -18,8 +18,12 @@ jobs:
     - name: Set up Homebrew
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $GITHUB_ENV
-        eval "$(/opt/homebrew/bin/brew shellenv)"
+        echo 'HOMEBREW_PREFIX="/opt/homebrew"' >> $GITHUB_ENV
+        echo 'PATH="/opt/homebrew/bin:$PATH"' >> $GITHUB_ENV
+        echo 'HOMEBREW_CELLAR="/opt/homebrew/Cellar"' >> $GITHUB_ENV
+        echo 'HOMEBREW_REPOSITORY="/opt/homebrew"' >> $GITHUB_ENV
+        echo 'MANPATH="/opt/homebrew/share/man:$MANPATH"' >> $GITHUB_ENV
+        echo 'INFOPATH="/opt/homebrew/share/info:$INFOPATH"' >> $GITHUB_ENV
     
     - name: Install dependencies
       run: |
