@@ -25,6 +25,7 @@ jobs:
         PATH: /opt/homebrew/bin:$PATH
       run: |
         brew install parallel jq
+        brew install newt
 
     - name: Suppress GNU Parallel Citation Notice
       run: |

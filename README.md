@@ -1,208 +1,93 @@
+<img src="./images/logo.pdf" alt="Mac Storage Manager Logo" width="250"/>
 
-# Step-by-Step Guide to Determining Application Sizes on Mac via Terminal (zsh)
+# Mac Storage Manager
 
-This guide helps you determine the size of all installed applications, programs, and packages on your Mac. You will create a shell script that searches various sources and compiles the results into a sorted file.
+The Mac Storage Manager is a shell script designed to help you manage disk space by identifying large applications on your Mac. It allows you to see the size of various installed applications, including Homebrew packages, and interactively select which ones to delete. It also provides options to delete associated caches to free up additional space.
 
-**Important:** This process can take up to 1 hour, as it first calculates all sizes and then sorts them.
+![Screenshot of the main screen](./images/screenshot_main.png)
 
-## Table of Contents
-- Step 1: Create the Script with nano
-- Step 2: Add Script Content
-- Step 3: Make the Script Executable
-- Step 4: Install Necessary Dependencies
-- Step 5: Run the Script
-- Step 6: Verify the Results
-- Dependencies
-- Suppressing GNU Parallel Citation Notices
-- License
+## Features
 
-## Step 1: Create the Script with nano
-Open the Terminal and create a new script file using nano:
+- **Size Calculation**: The script calculates the size of:
+  - Homebrew formulas (installed via `brew list --formula`)
+  - Homebrew casks (installed via `brew list --cask`)
+  - Applications in `/Applications` and `~/Applications` directories
+  - Optionally, applications found across the entire system via `sudo find`
+  - Optionally, packages installed via `pkgutil`
 
-```zsh
-nano ~/application_size_checker.sh
+![Screenshot of the sudo find question](./images/screenshot_sudo_find.png)
+  
+- **Interactive Deletion**: After collecting the application sizes, the script allows you to interactively select applications for deletion using a graphical dialog (whiptail).
+
+- **Cache Deletion**: You can also choose to delete the caches of the selected applications to free up additional space.
+
+- **Progress Bar and Sound Effects**: The script displays a progress bar during long-running tasks and provides audio feedback for key actions (e.g., when interacting with the GUI).
+
+## How to Use
+
+### Step 1: Clone the Repository
+Clone this repository to your local machine using:
+
+```bash
+git clone https://github.com/NarekMosisian/mac-storage-manager.git
 ```
 
-## Step 2: Add Script Content
-Copy the following content and paste it into the nano editor:
+### Step 2: Make the Script Executable
+Navigate to the cloned directory and make the script executable by running:
 
-```zsh
-#!/bin/zsh
-
-# Define output file
-OUTPUT=~/Desktop/application_size_sorted.txt
-echo "Determining application sizes on your Mac" > $OUTPUT
-echo "Created on: $(date)" >> $OUTPUT
-echo "--------------------------------------------" >> $OUTPUT
-
-# Function to add sections
-add_section() {
-    echo -e "
-$1" >> $OUTPUT
-    echo "--------------------------------------------" >> $OUTPUT
-    shift
-    for line in "$@"; do
-        echo "$line" >> $OUTPUT
-    done
-}
-
-# 1. Homebrew Formulas
-brew list --formula | parallel -j4 '
-    formula_path=$(brew --prefix {})
-    if [ -d "$formula_path" ]; then
-        size=$(du -sh "$formula_path" 2>/dev/null | awk "{print "{}: "$1}")
-    else
-        size="{}: Path not found"
-    fi
-    echo "$size"
-' | sort -hr > brew_formula_sizes.txt
-
-brew_formula_sizes=$(cat brew_formula_sizes.txt)
-add_section "Homebrew Formulas:" "${(@f)brew_formula_sizes}"
-
-# 2. Homebrew Casks
-brew list --cask | parallel -j4 '
-    app_path="/Applications/{}.app"
-    if [ -d "$app_path" ]; then
-        size=$(du -sh "$app_path" 2>/dev/null | awk "{print "{}: "$1}")
-    else
-        # Alternative paths for Casks
-        app_path="$(brew --prefix)/Caskroom/{}/latest/{}.app"
-        if [ -d "$app_path" ]; then
-            size=$(du -sh "$app_path" 2>/dev/null | awk "{print "{}: "$1}")
-        else
-            size="{}: Application not found"
-        fi
-    fi
-    echo "$size"
-' | sort -hr > brew_cask_sizes.txt
-
-brew_cask_sizes=$(cat brew_cask_sizes.txt)
-add_section "Homebrew Casks:" "${(@f)brew_cask_sizes}"
-
-# 3. Applications in /Applications Folder
-ls /Applications | grep ".app" | parallel -j4 '
-    size=$(du -sh "/Applications/{}" 2>/dev/null | awk "{print "{}: "$1}")
-    echo "$size"
-' | sort -hr > applications_sizes.txt
-
-applications_sizes=$(cat applications_sizes.txt)
-add_section "Applications in /Applications Folder:" "${(@f)applications_sizes}"
-
-# 4. Applications in ~/Applications Folder
-if [ -d ~/Applications ]; then
-    ls ~/Applications | grep ".app" | parallel -j4 '
-        size=$(du -sh "~/Applications/{}" 2>/dev/null | awk "{print "{}: "$1}")
-        echo "$size"
-    ' | sort -hr > user_applications_sizes.txt
-    user_applications_sizes=$(cat user_applications_sizes.txt)
-else
-    user_applications_sizes="No user-specific applications found."
-fi
-
-add_section "Applications in ~/Applications Folder:" "${(@f)user_applications_sizes}"
-
-# 5. Applications Found via sudo find
-# Warning: This step can take a long time
-echo "Determining sizes of applications found via sudo find... (this may take some time)" >> $OUTPUT
-found_apps_sizes=$(sudo find / -iname "*.app" -type d 2>/dev/null | parallel -j4 '
-    app_name=$(basename "{}")
-    size=$(du -sh "{}" 2>/dev/null | awk "{print "${app_name}: "$1}")
-    echo "$size"
-' | sort -hr)
-
-add_section "Applications Found via sudo find:" "${(@f)found_apps_sizes}"
-
-# 6. Packages Installed via pkgutil
-pkgutil --pkgs | parallel -j4 '
-    pkg_info=$(pkgutil --pkg-info "{}" 2>/dev/null)
-    if [ $? -eq 0 ]; then
-        install_location=$(echo "$pkg_info" | grep "volume:" | awk "{print \$2}")
-        if [ -d "$install_location" ]; then
-            size=$(du -sh "$install_location" 2>/dev/null | awk "{print "{}: "$1}")
-        else
-            size="{}: Installation location not found"
-        fi
-    else
-        size="{}: Information not available"
-    fi
-    echo "$size"
-' | sort -hr > pkgutil_pkgs_sizes.txt
-
-pkgutil_pkgs_sizes=$(cat pkgutil_pkgs_sizes.txt)
-add_section "Packages Installed via pkgutil:" "${(@f)pkgutil_pkgs_sizes}"
-
-# 7. Applications Listed via system_profiler
-system_profiler SPApplicationsDataType -json | jq -r '.SPApplicationsDataType[] | "\(.name): \(.size)"' | sort -hr > system_profiler_apps_sizes.txt
-system_profiler_apps_sizes=$(cat system_profiler_apps_sizes.txt)
-add_section "Applications Listed via system_profiler:" "${(@f)system_profiler_apps_sizes}"
-
-# Completion message
-echo "The sizes of the applications have been saved to $OUTPUT."
+```bash
+chmod +x ./application_size_checker.sh
 ```
 
-Save and Exit the Editor:
+### Step 3: Install Dependencies
 
-    Press `Ctrl + O` and then `Enter` to save the file.
-    Press `Ctrl + X` to exit the editor.
+The script relies on several tools. Install them via Homebrew:
 
-## Step 3: Make the Script Executable
-
-Make the script executable by running the following command in the Terminal:
-
-```zsh
-chmod +x ~/application_size_checker.sh
+```bash
+brew install parallel jq newt
 ```
 
-## Step 4: Install Necessary Dependencies
+- **parallel**: Executes commands in parallel to speed up processing.
+- **jq**: Parses JSON output from system commands.
+- **newt**: Provides terminal-based GUI dialogs (for interactive selection and progress bars).
 
-For processing the JSON output from `system_profiler`, we use `jq`. Ensure it is installed by running:
+### Step 4: Run the Script
+Run the script with the following command:
 
-```zsh
-brew install jq
+```bash
+./application_size_checker.sh
 ```
 
-Additionally, ensure that `parallel` is installed. If not, install it with:
+### Step 5: Follow the Interactive Prompts
 
-```zsh
-brew install parallel
-```
+During the script's execution, you will be prompted with the following options:
 
-If you don't have Homebrew installed, you can install it by following the instructions at [https://brew.sh/](https://brew.sh/).
+1. **Include `sudo find`**: This step searches for all applications across the system but may take a long time to complete.
+2. **Include `pkgutil` packages**: This step lists all packages installed via `pkgutil`, which may also take time depending on the number of installed packages.
 
-## Step 5: Run the Script
-
-Execute the script by running:
-
-```zsh
-~/application_size_checker.sh
-```
-
-## Step 6: Verify the Results
-
-After the script has finished running, you will find a file named `application_size_sorted.txt` on your Desktop. This file contains a complete list of all detected applications and packages with their respective sizes, sorted in descending order.
-
-## Dependencies
-
-This script utilizes the following tools:
-
-- **GNU Parallel:** A shell tool for executing jobs in parallel. [https://www.gnu.org/software/parallel/](https://www.gnu.org/software/parallel/)
-- **jq:** A lightweight and flexible command-line JSON processor. [https://stedolan.github.io/jq/](https://stedolan.github.io/jq/)
-- **Homebrew:** A package manager for macOS. [https://brew.sh/](https://brew.sh/)
-
-**Note:** Ensure these dependencies are installed before running the script.
+Once the script has gathered the sizes of all applications, a graphical interface will appear, allowing you to select the applications you wish to delete. After selection, you can choose whether or not to delete the caches of these applications as well.
 
 ## Suppressing GNU Parallel Citation Notices
 
-When running the script for the first time, you might encounter citation notices from GNU Parallel. To suppress these messages, execute the following command in your Terminal:
+When running `parallel` for the first time, you might encounter a citation notice. To suppress this message, run:
 
-```zsh
+```bash
 parallel --citation
 ```
 
-Note: This command only needs to be run once.
+This only needs to be done once.
+
+## Dependencies
+
+This script relies on the following tools:
+
+- **GNU Parallel**: A shell tool for executing jobs in parallel. [GNU Parallel](https://www.gnu.org/software/parallel/)
+- **jq**: A lightweight and flexible command-line JSON processor. [jq](https://stedolan.github.io/jq/)
+- **Homebrew**: A package manager for macOS. [Homebrew](https://brew.sh/)
+- **newt**: A package for creating GUI dialogs in the terminal. [newt](https://pagure.io/newt)
+
+Make sure these dependencies are installed before running the script.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
-
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
