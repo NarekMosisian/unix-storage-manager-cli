@@ -97,7 +97,7 @@ interactive_app_selection() {
     # Infinite loop to play sound on every SPACE press and refresh whiptail
     while true; do
         selected_apps=$(whiptail --title "Select Apps for Deletion" --checklist \
-            "Choose the apps to delete:\n\nSPACE: Select/Deselect\nTAB: Switch to <Ok>, <Cancel>, or <About>" 20 78 10 "${options[@]}" 3>&1 1>&2 2>&3)
+            "Choose the apps to delete:\n\nSPACE: Select/Deselect\nTAB: Switch to <Ok> or <Cancel>" 20 78 10 "${options[@]}" 3>&1 1>&2 2>&3)
 
         exitstatus=$?
         play_key_sound  # Play sound after pressing any key (including SPACE, OK, and Cancel)
