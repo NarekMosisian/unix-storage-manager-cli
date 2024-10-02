@@ -58,11 +58,11 @@ chmod +x ./application_size_checker.sh
 The script relies on several tools. Install them via Homebrew:
 
 ```bash
-brew install jq whiptail
+brew install jq newt
 ```
 
     jq: Parses JSON output from system commands.
-    whiptail: Provides terminal-based GUI dialogs (for interactive selection and progress bars).
+    newt: Provides terminal-based GUI dialogs (for interactive selection and progress bars).
 
 ### Step 4: Run the Script
 
