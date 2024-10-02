@@ -1,4 +1,4 @@
-name: CI
+name: Continuous Integration
 
 on:
   push:
@@ -17,25 +17,30 @@ jobs:
 
     - name: Install Homebrew
       run: |
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        eval "$(/opt/homebrew/bin/brew shellenv)"
+        if ! command -v brew >/dev/null; then
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
 
     - name: Install dependencies
-      env:
-        PATH: /opt/homebrew/bin:$PATH
       run: |
-        brew install parallel jq
-        brew install newt
-
-    - name: Suppress GNU Parallel Citation Notice
-      run: |
-        echo 'will cite' | parallel --citation
+        brew install jq whiptail
 
     - name: Make script executable
       run: chmod +x ./application_size_checker.sh
 
     - name: Run script
+      shell: zsh
       env:
         PATH: /opt/homebrew/bin:$PATH
-      run: ./application_size_checker.sh
+      run: |
+        set -e
+        ./application_size_checker.sh
 
+    - name: Upload logs
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: application_size_checker-log
+        path: application_size_checker.log
