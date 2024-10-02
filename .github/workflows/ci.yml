@@ -31,12 +31,12 @@ jobs:
       run: chmod +x ./application_size_checker.sh
 
     - name: Run script
-      shell: zsh
+      shell: bash
       env:
         PATH: /opt/homebrew/bin:$PATH
       run: |
         set -e
-        ./application_size_checker.sh
+        zsh ./application_size_checker.sh
 
     - name: Upload logs
       if: failure()
