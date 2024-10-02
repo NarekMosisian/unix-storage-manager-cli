@@ -25,7 +25,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install jq whiptail
+        brew install jq newt
 
     - name: Make script executable
       run: chmod +x ./application_size_checker.sh
