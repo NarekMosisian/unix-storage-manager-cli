@@ -23,14 +23,14 @@ jobs:
           eval "$(/opt/homebrew/bin/brew shellenv)"
         fi
 
-    - name: Install dependencies
+    - name: Install dependencies (jq, newt, zsh)
       run: |
-        brew install jq newt
+        brew install jq newt zsh
 
     - name: Make script executable
       run: chmod +x ./application_size_checker.sh
 
-    - name: Run script
+    - name: Run script using zsh
       shell: bash
       env:
         PATH: /opt/homebrew/bin:$PATH
