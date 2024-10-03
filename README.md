@@ -161,6 +161,10 @@ Please read the following carefully before using the script:
 - **No Undo**: Deleting applications and files is permanent and cannot be undone. Consider backing up important data before proceeding.
 - **Use at Your Own Risk**: The script is provided "as is," without warranty of any kind. The author is not responsible for any damage or data loss that may occur as a result of using this script.
 
+## Connect with me
+
+If you have any questions or want to discuss the project further, feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/narek-mosisian-484789291/).
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
