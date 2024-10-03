@@ -7,9 +7,11 @@ The Mac Storage Manager is a shell script designed to help you manage disk space
 
 ## Watch the Demo
 
-<a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
+<a href="https://www.youtube.com/watch?v=yourvideolink">
     <img src="./images/video.png" alt="Watch the Demo on YouTube" width="300"/>
 </a>
+
+> **Tip:** Hold down Ctrl (Windows/Linux) or Cmd (Mac) and click the image to open the video in a new tab.
 
 Click the image to watch the demo video on YouTube.
 
