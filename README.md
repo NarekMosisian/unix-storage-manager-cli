@@ -3,11 +3,13 @@
 
 The Mac Storage Manager is a shell script designed to help you manage disk space by identifying large applications on your Mac. It allows you to see the size of various installed applications, including Homebrew packages, and interactively select which ones to delete. It also provides options to delete associated caches and configuration files to free up additional space.
 
-![Mac Storage Manager Logo](./images/logo.png)
+<img src="./images/logo.png" alt="Mac Storage Manager Logo" width="300"/>
 
 ## Watch the Demo
 
-[![Watch the Demo on YouTube](./images/video.png)](https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian)
+<a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
+    <img src="./images/video.png" alt="Watch the Demo on YouTube" width="300"/>
+</a>
 
 Click the image to watch the demo video on YouTube.
 
