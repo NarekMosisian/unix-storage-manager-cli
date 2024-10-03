@@ -38,6 +38,8 @@ Click the image to watch the demo video on YouTube.
   - **Logs** (optional)
   - **Saved Application State** (optional)
   - **Other files matching the application name found via `sudo find`** (optional)
+ 
+![main](./images/screenshot_main.png)
 
 - **User Confirmation**: Before deleting any files, the script prompts for confirmation, displaying exactly which files and directories will be removed.
 
