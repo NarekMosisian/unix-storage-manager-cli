@@ -38,8 +38,6 @@ Click the image to watch the demo video on YouTube.
   - **Logs** (optional)
   - **Saved Application State** (optional)
   - **Other files matching the application name found via `sudo find`** (optional)
- 
-![main](./images/screenshot_main.png)
 
 - **User Confirmation**: Before deleting any files, the script prompts for confirmation, displaying exactly which files and directories will be removed.
 
@@ -102,6 +100,8 @@ Once the script has gathered the sizes of all applications, a graphical interfac
     Display the list of files and directories that will be removed for each application.
     Prompt you for each category of associated files (Application Support, Preferences, Caches, Logs, Saved Application State) whether you want to delete them.
     Optionally delete any additional files found via sudo find that are associated with the application.
+
+![main](./images/screenshot_main.png)
 
 ## Known Limitations and Common Issues
 
