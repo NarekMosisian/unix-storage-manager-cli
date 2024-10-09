@@ -4,6 +4,9 @@
 SOUND_PATH="./sounds"
 LOG_FILE="application_size_checker.log"
 
+# Initialize the sudo password variable
+sudo_password=""
+
 # Function to play sound for any key press event
 play_key_sound() {
     if [ -f "$SOUND_PATH/switch.wav" ]; then
@@ -18,10 +21,12 @@ request_sudo_password() {
     if [ -z "$sudo_password" ]; then  # Only request password if not already entered
         sudo_password=$(whiptail --passwordbox "Please enter your sudo password:" 8 60 3>&1 1>&2 2>&3)
         play_key_sound  # Play sound after entering the password
-        if [ $? -ne 0 ]; then
+        if [ $? -ne 0 ] || [ -z "$sudo_password" ]; then
             sudo_password=""
+            return 1
         fi
     fi
+    return 0
 }
 
 # Function to ensure sudo permissions are valid before execution
@@ -30,17 +35,22 @@ ensure_sudo_valid() {
         return 0  # Sudo is already available without password
     else
         request_sudo_password
-        if [ -n "$sudo_password" ]; then
-            echo "$sudo_password" | sudo -S -v 2>/dev/null  # Validate the password
-            if [ $? -ne 0 ]; then
-                echo "Invalid sudo password" >> "$LOG_FILE"
-                return 1
-            fi
-        else
+        if [ $? -ne 0 ]; then
             echo "Sudo password not entered" >> "$LOG_FILE"
             return 1
         fi
+        echo "$sudo_password" | sudo -S -v 2>/dev/null
+        if [ $? -ne 0 ]; then
+            whiptail --title "Error" --msgbox "Invalid sudo password. Please try again." 8 60
+            sudo_password=""
+            ensure_sudo_valid  # Retry
+        fi
     fi
+}
+
+# Function to execute sudo commands without interactive password prompt
+run_sudo_command() {
+    echo "$sudo_password" | sudo -S "$@" 2>/dev/null
 }
 
 # Function to format file sizes to the appropriate unit (MB, GB, KB, B)
@@ -124,6 +134,15 @@ gather_application_sizes() {
     local include_sudo_find="$1"
     local pipe pid
 
+    # If include_sudo_find is true, ensure sudo is valid before starting
+    if [ "$include_sudo_find" = true ]; then
+        ensure_sudo_valid  # Ensure sudo is available
+        if [ $? -ne 0 ]; then
+            echo "User canceled the sudo password prompt." >> "$LOG_FILE"
+            include_sudo_find=false  # Disable sudo find
+        fi
+    fi
+
     # Create a named pipe to send progress updates
     pipe=$(mktemp -u)
     mkfifo "$pipe"
@@ -169,17 +188,12 @@ gather_application_sizes() {
         # Optional Task: sudo find
         if [ "$include_sudo_find" = true ]; then
             update_progress "$pipe" 85 "Running 'sudo find'..."
-            ensure_sudo_valid  # Ensure sudo is available
-            if [ $? -eq 0 ]; then
-                sudo find / -iname "*.app" -type d -print0 2>/dev/null | while IFS= read -r -d '' app; do
-                    size=$(calculate_size "$app")
-                    # Extract application name without path
-                    app_basename=$(basename "$app")
-                    echo "$app_basename:$size"
-                done > sudo_find_results.txt
-            else
-                echo "User canceled the sudo password prompt." >> "$LOG_FILE"
-            fi
+            echo "$sudo_password" | sudo -S find / -iname "*.app" -type d -print0 2>/dev/null | while IFS= read -r -d '' app; do
+                size=$(calculate_size "$app")
+                # Extract application name without path
+                app_basename=$(basename "$app")
+                echo "$app_basename:$size"
+            done > sudo_find_results.txt
         fi
 
         update_progress "$pipe" 100 "Process completed."
@@ -236,11 +250,7 @@ confirm_deletion() {
     echo "Selected apps: $selected_apps" >> "$LOG_FILE"  # Log selected apps for debugging
 
     # Convert selected_apps from whiptail format to array
-    for app in $selected_apps; do
-        clean_app=$(echo "$app" | tr -d '"')
-        echo "Adding $clean_app to apps_to_delete" >> "$LOG_FILE"  # Debugging log
-        apps_to_delete+=("$clean_app")
-    done
+    eval "apps_to_delete=($selected_apps)"
 
     # Verify apps_to_delete is filled
     if [ ${#apps_to_delete[@]} -eq 0 ]; then
@@ -252,7 +262,8 @@ confirm_deletion() {
     # Prepare deletion confirmation message
     local deletion_message="Are you sure you want to permanently delete the following applications?\n\n"
     for app in "${apps_to_delete[@]}"; do
-        deletion_message+="$app\n"
+        clean_app=$(echo "$app" | tr -d '"')
+        deletion_message+="$clean_app\n"
     done
     deletion_message+="\nThis action cannot be undone."
 
@@ -261,22 +272,52 @@ confirm_deletion() {
         play_key_sound  # Play sound after confirmation
         echo "Confirmed deletion" >> "$LOG_FILE"
 
-        # Show a progress gauge for deletion
-        (
-            local total=${#apps_to_delete[@]}
-            local count=0
-            local percentage
+        # Ensure sudo credentials before deletion
+        ensure_sudo_valid
+        if [ $? -ne 0 ]; then
+            whiptail --title "Error" --msgbox "Sudo authentication failed. Cannot proceed with deletion." 8 60
+            return
+        fi
+
+        # Show progress bar during deletion
+        local total=${#apps_to_delete[@]}
+        local count=0
+        local percentage=0
+        local pipe pid
+
+        # Create a named pipe to send progress updates
+        pipe=$(mktemp -u)
+        mkfifo "$pipe"
+
+        # Show the progress bar in the background
+        (whiptail --gauge "Deleting applications..." 6 60 0 < "$pipe") &
+        pid=$!
+
+        exec 3> "$pipe"
+
+        # Start deletion process with progress updates
+        {
             for app in "${apps_to_delete[@]}"; do
+                clean_app=$(echo "$app" | tr -d '"')
                 count=$((count + 1))
                 percentage=$(( (count * 100) / total ))
-                echo "$percentage"
-                echo "# Deleting $app"
-                # Perform deletion
-                delete_application "$app"
-                echo "$percentage"
-                echo "# $app deleted."
+                echo "$percentage" > "$pipe"
+                echo "# Deleting $clean_app"
+
+                echo "Deleting $clean_app..." >> "$LOG_FILE"
+                delete_application "$clean_app"
+                echo "$clean_app deleted." >> "$LOG_FILE"
             done
-        ) | whiptail --title "Deleting applications..." --gauge "Deleting applications..." 20 60 0
+
+            # Close the pipe
+            exec 3>&-
+        } > /dev/null 2>&1
+
+        rm "$pipe"  # Remove the pipe after completion
+
+        # Wait for the progress bar to finish
+        wait $pid
+        sleep 0.5  # Small delay to ensure the progress bar is fully closed
 
         # Ask if the user wants to delete associated files
         ask_to_delete_associated_files "${apps_to_delete[@]}"
@@ -290,7 +331,7 @@ confirm_deletion() {
     fi
 }
 
-# Function to delete an application and its associated files
+# Function to delete an application
 delete_application() {
     local app_name="$1"
     local app_path
@@ -316,16 +357,11 @@ delete_application() {
             app_path="/Applications/Docker.app"
             if [ -d "$app_path" ]; then
                 echo "Found Docker at $app_path. Deleting..." >> "$LOG_FILE"
-                ensure_sudo_valid
+                echo "$sudo_password" | sudo -S rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
                 if [ $? -eq 0 ]; then
-                    sudo rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
-                    if [ $? -eq 0 ]; then
-                        echo "Successfully deleted $app_path." >> "$LOG_FILE"
-                    else
-                        echo "Failed to delete $app_path." >> "$LOG_FILE"
-                    fi
+                    echo "Successfully deleted $app_path." >> "$LOG_FILE"
                 else
-                    echo "Sudo not available. Cannot delete $app_path." >> "$LOG_FILE"
+                    echo "Failed to delete $app_path." >> "$LOG_FILE"
                 fi
             else
                 echo "Docker.app not found in /Applications." >> "$LOG_FILE"
@@ -368,21 +404,16 @@ delete_application() {
     if [ -z "$app_path" ]; then
         echo "$app_name not found in standard locations. Attempting to find via sudo find..." >> "$LOG_FILE"
         # Try to find the app via sudo find with limited depth to prevent long searches
-        app_path=$(sudo find / -iname "$app_name" -type d -maxdepth 5 2>/dev/null | head -n 1)
+        app_path=$(echo "$sudo_password" | sudo -S find / -iname "$app_name" -type d -maxdepth 5 2>/dev/null | head -n 1)
     fi
 
     if [ -n "$app_path" ]; then
         echo "Found $app_name at $app_path. Deleting..." >> "$LOG_FILE"
-        ensure_sudo_valid
+        echo "$sudo_password" | sudo -S rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
         if [ $? -eq 0 ]; then
-            sudo rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
-            if [ $? -eq 0 ]; then
-                echo "Successfully deleted $app_path." >> "$LOG_FILE"
-            else
-                echo "Failed to delete $app_path." >> "$LOG_FILE"
-            fi
+            echo "Successfully deleted $app_path." >> "$LOG_FILE"
         else
-            echo "Sudo not available. Cannot delete $app_path." >> "$LOG_FILE"
+            echo "Failed to delete $app_path." >> "$LOG_FILE"
         fi
     else
         echo "$app_name could not be found on the system." >> "$LOG_FILE"
@@ -397,6 +428,13 @@ ask_to_delete_associated_files() {
     local delete_caches=false
     local delete_logs=false
     local delete_saved_state=false
+
+    # Ensure sudo is valid before starting
+    ensure_sudo_valid
+    if [ $? -ne 0 ]; then
+        whiptail --title "Error" --msgbox "Sudo authentication failed. Cannot proceed with deleting associated files." 8 60
+        return
+    fi
 
     # Prompt for each category
     if whiptail --title "Delete Application Support?" --yesno "Do you want to delete the Application Support files for the selected applications?" 8 78; then
@@ -434,48 +472,93 @@ ask_to_delete_associated_files() {
         play_key_sound
     fi
 
-    # Perform deletions based on user choices
-    for app in "${apps[@]}"; do
-        app_clean=$(echo "$app" | tr -d '"')
-        echo "Processing associated files for: $app_clean" >> "$LOG_FILE"
+    # Collect the tasks to perform
+    local tasks=()
+    if [ "$delete_app_support" = true ]; then tasks+=("Application Support"); fi
+    if [ "$delete_preferences" = true ]; then tasks+=("Preferences"); fi
+    if [ "$delete_caches" = true ]; then tasks+=("Caches"); fi
+    if [ "$delete_logs" = true ]; then tasks+=("Logs"); fi
+    if [ "$delete_saved_state" = true ]; then tasks+=("Saved Application State"); fi
 
-        # Delete Application Support
-        if [ "$delete_app_support" = true ]; then
-            echo "Deleting Application Support for $app_clean" >> "$LOG_FILE"
-            sudo rm -rf "/Library/Application Support/$app_clean" >> "$LOG_FILE" 2>&1
-            sudo rm -rf "$HOME/Library/Application Support/$app_clean" >> "$LOG_FILE" 2>&1
-        fi
+    # If no tasks selected, exit the function
+    if [ ${#tasks[@]} -eq 0 ]; then
+        return
+    fi
 
-        # Delete Preferences
-        if [ "$delete_preferences" = true ]; then
-            echo "Deleting Preferences for $app_clean" >> "$LOG_FILE"
-            sudo rm -f "/Library/Preferences/com.$app_clean.*" >> "$LOG_FILE" 2>&1
-            sudo rm -f "$HOME/Library/Preferences/com.$app_clean.*" >> "$LOG_FILE" 2>&1
-        fi
+    # Show progress bar during deletion of associated files
+    local total=${#apps[@]}
+    local count=0
+    local percentage=0
+    local pipe pid
 
-        # Delete Caches
-        if [ "$delete_caches" = true ]; then
-            echo "Deleting Caches for $app_clean" >> "$LOG_FILE"
-            sudo rm -rf "/Library/Caches/$app_clean" >> "$LOG_FILE" 2>&1
-            sudo rm -f "/Library/Caches/com.$app_clean.*" >> "$LOG_FILE" 2>&1
-            sudo rm -rf "$HOME/Library/Caches/$app_clean" >> "$LOG_FILE" 2>&1
-            sudo rm -f "$HOME/Library/Caches/com.$app_clean.*" >> "$LOG_FILE" 2>&1
-        fi
+    # Create a named pipe to send progress updates
+    pipe=$(mktemp -u)
+    mkfifo "$pipe"
 
-        # Delete Logs
-        if [ "$delete_logs" = true ]; then
-            echo "Deleting Logs for $app_clean" >> "$LOG_FILE"
-            sudo rm -rf "/Library/Logs/$app_clean" >> "$LOG_FILE" 2>&1
-            sudo rm -rf "$HOME/Library/Logs/$app_clean" >> "$LOG_FILE" 2>&1
-        fi
+    # Show the progress bar in the background
+    (whiptail --gauge "Deleting associated files..." 6 60 0 < "$pipe") &
+    pid=$!
 
-        # Delete Saved Application State
-        if [ "$delete_saved_state" = true ]; then
-            echo "Deleting Saved Application State for $app_clean" >> "$LOG_FILE"
-            sudo rm -rf "/Library/Saved Application State/com.$app_clean.*" >> "$LOG_FILE" 2>&1
-            sudo rm -rf "$HOME/Library/Saved Application State/com.$app_clean.*" >> "$LOG_FILE" 2>&1
-        fi
-    done
+    exec 3> "$pipe"
+
+    # Start deletion process with progress updates
+    {
+        for app in "${apps[@]}"; do
+            app_clean=$(echo "$app" | tr -d '"')
+            count=$((count + 1))
+            percentage=$(( (count * 100) / total ))
+            echo "$percentage" > "$pipe"
+            echo "# Deleting associated files for $app_clean"
+
+            echo "Processing associated files for: $app_clean" >> "$LOG_FILE"
+
+            # Delete Application Support
+            if [ "$delete_app_support" = true ]; then
+                echo "Deleting Application Support for $app_clean" >> "$LOG_FILE"
+                echo "$sudo_password" | sudo -S rm -rf "/Library/Application Support/$app_clean" >> "$LOG_FILE" 2>&1
+                rm -rf "$HOME/Library/Application Support/$app_clean" >> "$LOG_FILE" 2>&1
+            fi
+
+            # Delete Preferences
+            if [ "$delete_preferences" = true ]; then
+                echo "Deleting Preferences for $app_clean" >> "$LOG_FILE"
+                echo "$sudo_password" | sudo -S find "/Library/Preferences" -name "*$app_clean*" -exec rm -f {} \; >> "$LOG_FILE" 2>&1
+                find "$HOME/Library/Preferences" -name "*$app_clean*" -exec rm -f {} \; >> "$LOG_FILE" 2>&1
+            fi
+
+            # Delete Caches
+            if [ "$delete_caches" = true ]; then
+                echo "Deleting Caches for $app_clean" >> "$LOG_FILE"
+                echo "$sudo_password" | sudo -S rm -rf "/Library/Caches/$app_clean" >> "$LOG_FILE" 2>&1
+                echo "$sudo_password" | sudo -S rm -rf "/Library/Caches/com.$app_clean.*" >> "$LOG_FILE" 2>&1
+                rm -rf "$HOME/Library/Caches/$app_clean" >> "$LOG_FILE" 2>&1
+                rm -rf "$HOME/Library/Caches/com.$app_clean.*" >> "$LOG_FILE" 2>&1
+            fi
+
+            # Delete Logs
+            if [ "$delete_logs" = true ]; then
+                echo "Deleting Logs for $app_clean" >> "$LOG_FILE"
+                echo "$sudo_password" | sudo -S rm -rf "/Library/Logs/$app_clean" >> "$LOG_FILE" 2>&1
+                rm -rf "$HOME/Library/Logs/$app_clean" >> "$LOG_FILE" 2>&1
+            fi
+
+            # Delete Saved Application State
+            if [ "$delete_saved_state" = true ]; then
+                echo "Deleting Saved Application State for $app_clean" >> "$LOG_FILE"
+                echo "$sudo_password" | sudo -S rm -rf "/Library/Saved Application State/com.$app_clean.*" >> "$LOG_FILE" 2>&1
+                rm -rf "$HOME/Library/Saved Application State/com.$app_clean.*" >> "$LOG_FILE" 2>&1
+            fi
+        done
+
+        # Close the pipe
+        exec 3>&-
+    } > /dev/null 2>&1
+
+    rm "$pipe"  # Remove the pipe after completion
+
+    # Wait for the progress bar to finish
+    wait $pid
+    sleep 0.5  # Small delay to ensure the progress bar is fully closed
 }
 
 # Function for interactive selection using whiptail/dialog with real-time feedback
