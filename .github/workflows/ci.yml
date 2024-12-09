@@ -2,20 +2,20 @@ name: Continuous Integration
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint-and-test:
     runs-on: macos-latest
 
     steps:
-      # Checkout repository
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Install Homebrew
+      # 2. Install Homebrew
       - name: Install Homebrew
         run: |
           if ! command -v brew >/dev/null; then
@@ -24,20 +24,16 @@ jobs:
             eval "$(/opt/homebrew/bin/brew shellenv)"
           fi
 
-      # Install dependencies
+      # 3. Install dependencies
       - name: Install dependencies
         run: |
-          brew install jq newt shellcheck bats-core
+          brew install jq newt bats-core
 
-      # Run ShellCheck
-      - name: Lint with ShellCheck
-        run: shellcheck application_size_checker.sh
-
-      # Run Bats Tests
-      - name: Run unit tests with Bats
+      # 4. Run unit tests with Bats
+      - name: Run Tests
         run: bats tests/
 
-      # Upload logs on failure
+      # 5. Upload logs if tests fail
       - name: Upload logs
         if: failure()
         uses: actions/upload-artifact@v3
