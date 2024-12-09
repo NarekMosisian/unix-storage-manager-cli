@@ -70,11 +70,13 @@ chmod +x ./application_size_checker.sh
 The script relies on several tools. Install them via Homebrew:
 
 ```bash
-brew install jq newt
+brew install jq newt shellcheck bats-core
 ```
 
     jq: Parses JSON output from system commands.
     newt: Provides terminal-based GUI dialogs (for interactive selection and progress bars).
+    ShellCheck: Helps identify and fix common errors in shell scripts.
+    Bats: Allows you to write unit tests for your Bash scripts.
 
 ### Step 4: Run the Script
 
@@ -117,6 +119,8 @@ This script relies on the following tools:
 - **jq**: A lightweight and flexible command-line JSON processor.
 - **Homebrew**: A package manager for macOS.
 - **whiptail**: A package for creating GUI dialogs in the terminal.
+- **ShellCheck**: A tool to analyze shell scripts for potential errors.
+- **Bats**: A testing framework for Bash scripts to create and run unit tests.
 
 Make sure these dependencies are installed before running the script.
 
@@ -169,4 +173,7 @@ If you have any questions or want to discuss the project further, feel free to c
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.  
+This license ensures that anyone who modifies, uses, or redistributes this software—especially in a networked environment—must share the source code and any modifications under the same license.  
+
+For detailed information, see the [LICENSE](./LICENSE) file.

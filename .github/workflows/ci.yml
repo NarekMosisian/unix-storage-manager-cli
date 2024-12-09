@@ -7,40 +7,40 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  lint-and-test:
     runs-on: macos-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Install Homebrew
-      run: |
-        if ! command -v brew >/dev/null; then
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
-          eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
+      # Install Homebrew
+      - name: Install Homebrew
+        run: |
+          if ! command -v brew >/dev/null; then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          fi
 
-    - name: Install dependencies (jq, newt, zsh)
-      run: |
-        brew install jq newt zsh
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          brew install jq newt shellcheck bats-core
 
-    - name: Make script executable
-      run: chmod +x ./application_size_checker.sh
+      # Run ShellCheck
+      - name: Lint with ShellCheck
+        run: shellcheck application_size_checker.sh
 
-    - name: Run script using zsh
-      shell: bash
-      env:
-        PATH: /opt/homebrew/bin:$PATH
-      run: |
-        set -e
-        zsh ./application_size_checker.sh
+      # Run Bats Tests
+      - name: Run unit tests with Bats
+        run: bats tests/
 
-    - name: Upload logs
-      if: failure()
-      uses: actions/upload-artifact@v3
-      with:
-        name: application_size_checker-log
-        path: application_size_checker.log
+      # Upload logs on failure
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: application_size_checker-log
+          path: application_size_checker.log
