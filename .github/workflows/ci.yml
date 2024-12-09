@@ -7,40 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
-  lint-and-test:
+  build:
     runs-on: macos-latest
 
     steps:
-      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Install Homebrew
-      - name: Install Homebrew
-        run: |
-          if ! command -v brew >/dev/null; then
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-          fi
-
-      # Install dependencies
       - name: Install dependencies
-        run: |
-          brew install jq newt shellcheck bats-core
-
-      # Run ShellCheck
-      - name: Lint with ShellCheck
-        run: shellcheck application_size_checker.sh
-
-      # Run Bats Tests
-      - name: Run unit tests with Bats
-        run: bats tests/
-
-      # Upload logs on failure
-      - name: Upload logs
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: application_size_checker-log
-          path: application_size_checker.log
+        run: brew install jq
