@@ -18,34 +18,49 @@ play_key_sound() {
 
 # Function to request sudo privileges only when required
 request_sudo_password() {
-    if [ -z "$sudo_password" ]; then  # Only request password if not already entered
-        sudo_password=$(whiptail --passwordbox "Please enter your sudo password:" 8 60 3>&1 1>&2 2>&3)
-        play_key_sound  # Play sound after entering the password
-        if [ $? -ne 0 ] || [ -z "$sudo_password" ]; then
-            sudo_password=""
-            return 1
-        fi
+    # Request password regardless of previous value
+    sudo_password=$(whiptail --passwordbox "Please enter your sudo password:" 8 60 3>&1 1>&2 2>&3)
+    retcode=$?
+    if [ $retcode -ne 0 ] || [ -z "$sudo_password" ]; then
+        sudo_password=""
+        return 1
     fi
+    play_key_sound  # Play sound after successful password input
     return 0
 }
 
-# Function to ensure sudo permissions are valid before execution
+# Function to ensure sudo permissions are valid before execution (max 3 attempts)
 ensure_sudo_valid() {
-    if sudo -n true 2>/dev/null; then
-        return 0  # Sudo is already available without password
-    else
+    local attempts=0
+    while true; do
+        # Check if sudo is already available without prompting
+        if sudo -n true 2>/dev/null; then
+            return 0
+        fi
+
+        if [ $attempts -ge 3 ]; then
+            whiptail --title "Error" --msgbox "Failed to obtain valid sudo credentials after 3 attempts. Exiting." 8 60
+            exit 1
+        fi
+
+        # Request sudo password
         request_sudo_password
         if [ $? -ne 0 ]; then
-            echo "Sudo password not entered" >> "$LOG_FILE"
-            return 1
+            attempts=$((attempts + 1))
+            whiptail --title "Error" --msgbox "Sudo password input failed. Attempt $attempts of 3." 8 60
+            continue
         fi
+
+        # Validate the provided password
         echo "$sudo_password" | sudo -S -v 2>/dev/null
-        if [ $? -ne 0 ]; then
-            whiptail --title "Error" --msgbox "Invalid sudo password. Please try again." 8 60
+        if [ $? -eq 0 ]; then
+            return 0
+        else
+            attempts=$((attempts + 1))
+            whiptail --title "Error" --msgbox "Invalid sudo password. Attempt $attempts of 3 failed." 8 60
             sudo_password=""
-            ensure_sudo_valid  # Retry
         fi
-    fi
+    done
 }
 
 # Function to execute sudo commands without interactive password prompt
@@ -663,3 +678,4 @@ check_homebrew
 handle_sudo_find
 combine_results
 interactive_app_selection "${sorted_items[@]}"
+
