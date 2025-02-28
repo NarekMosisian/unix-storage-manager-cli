@@ -2,7 +2,7 @@
 
 Mac Storage Manager is a shell script that helps you reclaim disk space by identifying and managing large applications on your system. Originally built for macOS, this new version has been refactored to work on both macOS and Linux. It calculates the size of installed applications (including Homebrew formulas and casks on macOS) and provides an interactive interface for safely deleting applications along with their associated files.
 
-<img src="./images/logo.png" alt="Mac Storage Manager Logo" width="300"/>
+<img src="./images/msm.png" alt="Mac Storage Manager" width="640"/>
 
 ## Features
 
@@ -29,6 +29,18 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 
 - **Logging**:  
   - Records errors and detailed process logs in `application_size_checker.log`.
+
+---
+
+## Watch the Demo
+
+<a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
+    <img src="./images/video.png" alt="Watch the Demo on YouTube" width="300"/>
+</a>
+
+> **Tip:** Hold down Ctrl (Windows/Linux) or Cmd (Mac) and click the image to open the video in a new tab.
+
+Click the image to watch the demo video on YouTube.
 
 ---
 
