@@ -20,8 +20,13 @@ if [ "$OS_TYPE" = "Linux" ]; then
     XDG_CACHE=${XDG_CACHE_HOME:-"$HOME/.cache"}
 fi
 
-# Definition of file paths
 SOUND_PATH="./sounds"
+
+# If the environment variable is set (by Homebrew), use it to set the sound path
+if [ -n "$MAC_STORAGE_MANAGER_SHARE" ]; then
+    SOUND_PATH="$MAC_STORAGE_MANAGER_SHARE/sounds"
+fi
+
 LOG_FILE="application_size_checker.log"
 
 # Sound player command depending on OS
