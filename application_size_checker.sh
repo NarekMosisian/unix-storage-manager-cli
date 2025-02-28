@@ -27,6 +27,9 @@ if [ -n "$MAC_STORAGE_MANAGER_SHARE" ]; then
     SOUND_PATH="$MAC_STORAGE_MANAGER_SHARE/sounds"
 fi
 
+echo "DEBUG: SOUND_PATH=$SOUND_PATH" >> "$LOG_FILE"
+ls -l "$SOUND_PATH" >> "$LOG_FILE" 2>&1
+
 LOG_FILE="application_size_checker.log"
 
 # Sound player command depending on OS
