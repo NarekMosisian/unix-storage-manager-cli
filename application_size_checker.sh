@@ -2,27 +2,6 @@
 # ============================================================
 # Mac Storage Manager - Cross-Platform Version (macOS/Linux)
 # ============================================================
-#
-# Note:
-# - On macOS, applications are searched in /Applications and $HOME/Applications
-#   (with the .app extension).
-# - On Linux, applications are searched in /usr/share/applications and 
-#   $HOME/.local/share/applications (with the .desktop extension).
-#
-# When deleting the associated files:
-# On macOS, among other things, Application Support, Preferences,
-# Caches, Logs, and Saved Application State are searched.
-#
-# On Linux, the XDG directories are used:
-#   • Application Data: $XDG_DATA_HOME (Default: ~/.local/share)
-#   • Configuration:    $XDG_CONFIG_HOME (Default: ~/.config)
-#   • Cache:            $XDG_CACHE_HOME (Default: ~/.cache)
-#
-# Dependencies:
-#   • macOS: Homebrew, whiptail, jq, newt, afplay, etc.
-#   • Linux: (optional) Linuxbrew, whiptail, jq, newt, paplay, etc.
-#
-# ============================================================
 
 # OS detection
 OS_TYPE=$(uname)
@@ -630,8 +609,6 @@ ask_to_delete_associated_files() {
     sleep 0.5
 }
 
-# --- MAIN WINDOW: INTERACTIVE APPLICATION SELECTION ---
-# This part remains exactly as in the second version.
 interactive_app_selection() {
     local items=("$@")
     local options=()
@@ -671,11 +648,9 @@ interactive_app_selection() {
         fi
     done
 }
-# --- END MAIN WINDOW ---
 
 combine_results() {
     local items=()
-    # Read all result files (formulas, casks, applications, etc.)
     for file in brew_formula_sizes.txt brew_cask_sizes.txt applications_sizes.txt home_applications_sizes.txt sudo_find_results.txt; do
         if [ -f "$file" ]; then
             while IFS= read -r line; do
@@ -683,10 +658,8 @@ combine_results() {
             done < "$file"
         fi
     done
-    # Create sorted entries for the interactive selection
     sorted_items=("${(f)$(format_and_sort_results "${items[@]}")}")
 
-    # Additionally write all results to the log file
     {
       echo "===== Brew Casks ====="
       if [ -f brew_cask_sizes.txt ]; then
@@ -783,7 +756,6 @@ handle_sudo_find
 combine_results
 interactive_app_selection "${sorted_items[@]}"
 
-# Final Block:
 show_about
 
 sudo_password=""
