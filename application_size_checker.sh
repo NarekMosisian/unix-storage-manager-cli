@@ -1,7 +1,10 @@
 #!/bin/zsh
-# ============================================================
+# ===================================================================================
 # Mac Storage Manager - Cross-Platform Version (macOS/Linux)
-# ============================================================
+#
+# For more information, visit: https://github.com/NarekMosisian/mac-storage-manager
+# © 2024 Narek Mosisian. All rights reserved.
+# ===================================================================================
 
 # OS detection
 OS_TYPE=$(uname)
@@ -247,11 +250,18 @@ gather_application_sizes() {
                 # For Linux, we also search for .desktop files
                 extension="desktop"
             fi
-            echo "$sudo_password" | sudo -S find / -iname "*.${extension}" -type d -maxdepth 5 -print0 2>/dev/null | while IFS= read -r -d '' app; do
-                size=$(calculate_size "$app")
-                app_basename=$(basename "$app")
-                echo "$app_basename:$size"
-            done > sudo_find_results.txt
+
+            # Pfade eindeutig machen und nur den Basename mit Größe ausgeben.
+            # Danach erneut nach dem ersten Feld (Basename) sortieren, um Duplikate zu entfernen.
+            echo "$sudo_password" | sudo -S find / -iname "*.${extension}" -type d -maxdepth 5 -print0 2>/dev/null \
+                | sort -z -u \
+                | while IFS= read -r -d '' app; do
+                    size=$(calculate_size "$app")
+                    app_basename=$(basename "$app")
+                    echo "$app_basename:$size"
+                done \
+                | sort -t':' -k1,1 -u \
+                > sudo_find_results.txt
         fi
 
         update_progress 100 "Process completed."
@@ -286,6 +296,7 @@ format_and_sort_results() {
         formatted_size=$(format_size "$app_size_kb")
         formatted_items+=("$app_name:$formatted_size:$app_size_kb")
     done
+    # Sortiert nach drittem Feld (KB-Zahl) absteigend
     printf "%s\n" "${formatted_items[@]}" | sort -t':' -k3nr
 }
 
@@ -658,72 +669,52 @@ combine_results() {
             done < "$file"
         fi
     done
-    sorted_items=("${(f)$(format_and_sort_results "${items[@]}")}")
+
+    typeset -A name_to_size
+    typeset -A name_to_display
+
+    for entry in "${items[@]}"; do
+        local raw_name=$(echo "$entry" | cut -d':' -f1)
+        local raw_size=$(echo "$entry" | cut -d':' -f2)
+
+        local unified_name=$(echo "$raw_name" | sed 's/\.app$//i' | sed 's/\.desktop$//i' | tr '[:upper:]' '[:lower:]')
+
+        if [[ "$raw_size" == "?" ]]; then
+            raw_size=0
+        fi
+
+        if [[ -z "${name_to_size[$unified_name]}" ]]; then
+            name_to_size[$unified_name]="$raw_size"
+            name_to_display[$unified_name]="$raw_name"
+        else
+            local existing_size="${name_to_size[$unified_name]}"
+            if (( raw_size > existing_size )); then
+                name_to_size[$unified_name]="$raw_size"
+                name_to_display[$unified_name]="$raw_name"
+            fi
+        fi
+    done
+
+    local deduped_items=()
+    for unified in "${(@k)name_to_size}"; do
+        deduped_items+=("${name_to_display[$unified]}:${name_to_size[$unified]}")
+    done
+
+    sorted_items=("${(f)$(format_and_sort_results "${deduped_items[@]}")}")
 
     {
-      echo "===== Brew Casks ====="
-      if [ -f brew_cask_sizes.txt ]; then
-          while IFS=: read -r name size; do
-              formatted=$(format_size "$size")
-              echo "Cask '$name' size: $formatted"
-          done < brew_cask_sizes.txt
-      fi
-
-      echo "===== Brew Formulas ====="
-      if [ -f brew_formula_sizes.txt ]; then
-          while IFS=: read -r name size; do
-              formatted=$(format_size "$size")
-              echo "Formula '$name' size: $formatted"
-          done < brew_formula_sizes.txt
-      fi
-
-      if [ "$OS_TYPE" = "Darwin" ]; then
-          echo "===== Applications (/Applications) ====="
-          if [ -f applications_sizes.txt ]; then
-              while IFS=: read -r name size; do
-                  formatted=$(format_size "$size")
-                  echo "Application '$name' size: $formatted"
-              done < applications_sizes.txt
-          fi
-
-          echo "===== Home Applications ($HOME/Applications) ====="
-          if [ -f home_applications_sizes.txt ]; then
-              while IFS=: read -r name size; do
-                  formatted=$(format_size "$size")
-                  echo "Application '$name' size: $formatted"
-              done < home_applications_sizes.txt
-          fi
-      elif [ "$OS_TYPE" = "Linux" ]; then
-          echo "===== System Applications (/usr/share/applications) ====="
-          if [ -f applications_sizes.txt ]; then
-              while IFS=: read -r name size; do
-                  formatted=$(format_size "$size")
-                  echo "Desktop '$name' size: $formatted"
-              done < applications_sizes.txt
-          fi
-
-          echo "===== User Applications ($HOME/.local/share/applications) ====="
-          if [ -f home_applications_sizes.txt ]; then
-              while IFS=: read -r name size; do
-                  formatted=$(format_size "$size")
-                  echo "Desktop '$name' size: $formatted"
-              done < home_applications_sizes.txt
-          fi
-      fi
-
-      if [ -f sudo_find_results.txt ]; then
-          echo "===== Additional Results (sudo find) ====="
-          while IFS=: read -r name size; do
-              formatted=$(format_size "$size")
-              echo "Found '$name' size: $formatted"
-          done < sudo_find_results.txt
-      fi
+      echo "===== Combined & Deduplicated Results ====="
+      for item in "${sorted_items[@]}"; do
+          local app_name=$(echo "$item" | cut -d':' -f1)
+          local app_size=$(echo "$item" | cut -d':' -f2)
+          echo "App '$app_name' size: $app_size"
+      done
     } >> "$LOG_FILE"
 }
 
 show_about() {
     whiptail --title "About this application" --msgbox "This script was created by Narek Mosisian.
-It helps you manage and delete Mac applications easily.
+It helps you manage and delete Mac and Linux applications easily.
 
 For more information, visit: https://github.com/NarekMosisian/mac-storage-manager
 
