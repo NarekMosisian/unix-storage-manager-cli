@@ -137,8 +137,8 @@ When you confirm the deletion of an application, the script attempts to thorough
 - **Homebrew Files** (macOS only):
     - Uninstalls associated Homebrew formulas and casks installed via Homebrew.
 
-- **Associated Files and Directories**:
-**macOS**:
+**Associated Files and Directories**:
+- **macOS**:
     - **Application Support** (optional):
         - `~/Library/Application Support/<Application Name>`
         - `/Library/Application Support/<Application Name>`
@@ -157,7 +157,7 @@ When you confirm the deletion of an application, the script attempts to thorough
         - `~/Library/Saved Application State/com.<Application Name>.*`
         - `/Library/Saved Application State/com.<Application Name>.*`
 
-**Linux**:
+- **Linux**:
     - **Application Data** (optional):
         - `$XDG_DATA_HOME/<AppName>`
         - `~/.local/share/<AppName>`
