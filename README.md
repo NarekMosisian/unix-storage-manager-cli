@@ -1,57 +1,42 @@
+# Mac Storage Manager – Cross-Platform Version (macOS & Linux)
 
-# Mac Storage Manager
-
-The Mac Storage Manager is a shell script designed to help you manage disk space by identifying large applications on your Mac. It allows you to see the size of various installed applications, including Homebrew packages, and interactively select which ones to delete. It also provides options to delete associated caches and configuration files to free up additional space.
+Mac Storage Manager is a shell script that helps you reclaim disk space by identifying and managing large applications on your system. Originally built for macOS, this new version has been refactored to work on both macOS and Linux. It calculates the size of installed applications (including Homebrew formulas and casks on macOS) and provides an interactive interface for safely deleting applications along with their associated files.
 
 <img src="./images/logo.png" alt="Mac Storage Manager Logo" width="300"/>
 
 ## Features
 
-- **Size Calculation**: The script calculates the size of:
-  - Homebrew formulas (installed via `brew list --formula`)
-  - Homebrew casks (installed via `brew list --cask`)
-  - Applications in `/Applications` and `~/Applications` directories
-  - Optionally, applications found across the entire system via `sudo find`
+- **Cross-Platform Support**:  
+  - **macOS**: Scans `/Applications` and `~/Applications` for `.app` bundles.
+  - **Linux**: Scans `/usr/share/applications` and `~/.local/share/applications` for `.desktop` files.
+  
+- **Size Calculation**:  
+  - Calculates sizes for Homebrew formulas and casks (macOS only).
+  - Scans standard application directories.
+  - Optionally performs a comprehensive search using `sudo find`.
 
-![Sudo Find Prompt](./images/screenshot_sudo_find.png)
+- **Interactive Deletion**:  
+  - Graphical dialogs using whiptail for selecting applications to delete.
+  - Prompts for confirmation before deleting main files and associated files.
 
-- **Interactive Deletion**: After collecting the application sizes, the script allows you to interactively select applications for deletion using a graphical dialog (`whiptail`).
+- **Selective Associated File Deletion**:  
+  - **macOS**: Offers to remove Application Support, Preferences, Caches, Logs, and Saved Application State.
+  - **Linux**: Offers to remove Application Data, Configuration, Cache, and Log files based on XDG directories.
 
-- **Selective Deletion**: The script prompts you for each category of associated files (Application Support, Preferences, Caches, Logs, Saved Application State) whether you want to delete them.
+- **Progress and Audio Feedback**:  
+  - Displays progress bars during long-running tasks.
+  - Plays sound effects for key actions (using `afplay` on macOS and `paplay` on Linux).
 
-- **Comprehensive Removal**: The script not only deletes the main application files but also associated files, including:
-  - **Homebrew Files**:
-    - Uninstalls associated Homebrew formulas and casks.
-  - **Application Support files** (optional)
-  - **Preferences** (optional)
-  - **Caches** (optional)
-  - **Logs** (optional)
-  - **Saved Application State** (optional)
-  - **Other files matching the application name found via `sudo find`** (optional)
+- **Logging**:  
+  - Records errors and detailed process logs in `application_size_checker.log`.
 
-- **User Confirmation**: Before deleting any files, the script prompts for confirmation, displaying exactly which files and directories will be removed.
-
-- **Progress Bar and Sound Effects**: The script displays a progress bar during long-running tasks and provides audio feedback for key actions (e.g., when interacting with the GUI).
-
-- **Logging**: The script creates a log file `application_size_checker.log` where errors and warnings are recorded. Check this file if you encounter issues during execution.
-
-![main](./images/screenshot_main.png)
-
-## Watch the Demo
-
-<a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
-    <img src="./images/video.png" alt="Watch the Demo on YouTube" width="300"/>
-</a>
-
-> **Tip:** Hold down Ctrl (Windows/Linux) or Cmd (Mac) and click the image to open the video in a new tab.
-
-Click the image to watch the demo video on YouTube.
+---
 
 ## How to Use
 
 ### Step 1: Clone the Repository
 
-Clone this repository to your local machine using:
+Clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/NarekMosisian/mac-storage-manager.git
@@ -67,21 +52,41 @@ chmod +x ./application_size_checker.sh
 
 ### Step 3: Install Dependencies
 
-The script relies on several tools. Install them via Homebrew:
+The script relies on several tools. Install them as follows:
+
+- **macOS** (using Homebrew):
 
 ```bash
 brew install jq newt
 ```
+
+- **Linux** (using your package manager or Linuxbrew):
+
+```bash
+# On Debian/Ubuntu-based systems:
+sudo apt-get update
+sudo apt-get install jq newt whiptail paplay
+
+# Alternatively, if using Linuxbrew:
+brew install jq newt whiptail
+```
+Note: On macOS, afplay is used for audio, while on Linux paplay is used.
 
     jq: Parses JSON output from system commands.
     newt: Provides terminal-based GUI dialogs (for interactive selection and progress bars).
 
 ### Step 4: Run the Script
 
-Run the script with the following command:
+Launch the script by executing:
 
 ```bash
 ./application_size_checker.sh
+```
+
+Or, explicitly with zsh:
+
+```bash
+zsh ./application_size_checker.sh
 ```
 
 Note: The script uses zsh. Ensure that zsh is installed and set as your default shell, or run the script explicitly with zsh:
@@ -115,8 +120,9 @@ Once the script has gathered the sizes of all applications, a graphical interfac
 This script relies on the following tools:
 
 - **jq**: A lightweight and flexible command-line JSON processor.
-- **Homebrew**: A package manager for macOS.
+- **Homebrew**: (macOS only) or **Linuxbrew** (optional on Linux).
 - **whiptail**: A package for creating GUI dialogs in the terminal.
+- **newt**: For terminal-based GUI dialogs.
 
 Make sure these dependencies are installed before running the script.
 
@@ -124,12 +130,15 @@ Make sure these dependencies are installed before running the script.
 
 When you confirm the deletion of an application, the script attempts to thoroughly remove it by deleting:
 
-- **Main Application Files**: The application bundle from `/Applications` and `~/Applications`.
+- **Main Application Files**: 
+    - **On macOS**: The application bundle from `/Applications` and `~/Applications`.
+    - **On Linux**: The corresponding .desktop files from /usr/share/applications or ~/.local/share/applications.
 
-- **Homebrew Files**:
+- **Homebrew Files** (macOS only):
     - Uninstalls associated Homebrew formulas and casks installed via Homebrew.
 
 - **Associated Files and Directories**:
+**macOS**:
     - **Application Support** (optional):
         - `~/Library/Application Support/<Application Name>`
         - `/Library/Application Support/<Application Name>`
@@ -147,6 +156,19 @@ When you confirm the deletion of an application, the script attempts to thorough
     - **Saved Application State** (optional):
         - `~/Library/Saved Application State/com.<Application Name>.*`
         - `/Library/Saved Application State/com.<Application Name>.*`
+
+**Linux**:
+    - **Application Data** (optional):
+        - `$XDG_DATA_HOME/<AppName>`
+        - `~/.local/share/<AppName>`
+    - **Configuration Files** (optional):
+        - `$XDG_CONFIG_HOME/<AppName>`
+        - `~/.config/<AppName>`
+    - **Cache Files** (optional):
+        - `$XDG_CACHE_HOME/<AppName>`
+        - `~/.cache/<AppName>`
+    - **Log Files** (optional):
+        - Common log directories (if any) related to the application
 
 - **Additional Files Found via `sudo find` (optional)**: Any files matching the application name found during the `sudo find` operation (if you chose to include this step). The script will display these files and ask for your confirmation before deletion.
 
