@@ -77,10 +77,10 @@ brew install jq newt
 ```bash
 # On Debian/Ubuntu-based systems:
 sudo apt-get update
-sudo apt-get install jq newt whiptail paplay
+sudo apt-get install jq newt paplay
 
 # Alternatively, if using Linuxbrew:
-brew install jq newt whiptail
+brew install jq newt
 ```
 Note: On macOS, afplay is used for audio, while on Linux paplay is used.
 
