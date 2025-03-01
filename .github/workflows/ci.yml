@@ -15,22 +15,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Update Homebrew and run doctor
-        run: |
-          brew update || true
-          brew doctor || true
+      - name: Add your external Tap
+        run: brew tap NarekMosisian/mac-storage-manager
 
-      - name: Install dependencies
-        run: |
-          brew install jq newt
+      - name: Update Homebrew
+        run: brew update || true
 
-      - name: Uninstall previous version (if any)
-        run: brew uninstall mac-storage-manager || true
-
-      - name: Build and install formula from source
-        run: |
-          brew install --build-from-source Formula/mac-storage-manager.rb
-
+      - name: Install formula from your Tap
+        run: brew install --build-from-source mac-storage-manager
 
       - name: Run tests
         run: |
@@ -49,26 +41,20 @@ jobs:
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> $HOME/.profile
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-      - name: Update Homebrew and run doctor
+      - name: Add your external Tap
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew tap NarekMosisian/mac-storage-manager
+
+      - name: Update Homebrew
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew update || true
-          brew doctor || true
 
-      - name: Install dependencies
+      - name: Install formula from your Tap
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install jq newt
-
-      - name: Uninstall previous version (if any)
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew uninstall mac-storage-manager || true
-
-      - name: Build and install formula from source
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install --build-from-source Formula/mac-storage-manager.rb
+          brew install --build-from-source mac-storage-manager
 
       - name: Run tests
         run: |
