@@ -17,8 +17,8 @@ jobs:
 
       - name: Update Homebrew and run doctor
         run: |
-          brew update
-          brew doctor
+          brew update || true
+          brew doctor || true
 
       - name: Install dependencies
         run: |
@@ -51,8 +51,8 @@ jobs:
       - name: Update Homebrew and run doctor
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew update
-          brew doctor
+          brew update || true
+          brew doctor || true
 
       - name: Install dependencies
         run: |
