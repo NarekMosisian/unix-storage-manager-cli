@@ -41,6 +41,18 @@ jobs:
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> $HOME/.profile
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
+      - name: Install zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
+
+      - name: Check zsh availability
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          echo "PATH: $PATH"
+          which zsh
+          zsh --version
+
       - name: Add your external Tap
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -62,14 +74,13 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew uninstall mac-storage-manager || true
 
-      - name: Build and install formula from your Tap
+      - name: Build and install formula from source
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install --build-from-source mac-storage-manager
+          brew install --build-from-source ./Formula/mac-storage-manager.rb
 
       - name: Run tests
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew test mac-storage-manager
           brew audit --strict mac-storage-manager
-
