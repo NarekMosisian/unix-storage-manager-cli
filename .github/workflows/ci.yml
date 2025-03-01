@@ -50,21 +50,27 @@ jobs:
 
       - name: Update Homebrew and run doctor
         run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew update
           brew doctor
 
       - name: Install dependencies
         run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install jq newt
 
       - name: Uninstall previous version (if any)
-        run: brew uninstall mac-storage-manager || true
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew uninstall mac-storage-manager || true
 
       - name: Build and install formula from source
         run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install --build-from-source Formula/m/mac-storage-manager.rb
 
       - name: Run tests
         run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew test mac-storage-manager
           brew audit --strict mac-storage-manager
