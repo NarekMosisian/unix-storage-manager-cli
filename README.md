@@ -1,5 +1,7 @@
 # Mac Storage Manager – Cross-Platform Version (macOS & Linux)
 
+![CI](https://github.com/NarekMosisian/mac-storage-manager/actions/workflows/ci.yml/badge.svg)
+
 Mac Storage Manager is a shell script that helps you reclaim disk space by identifying and managing large applications on your system. Originally built for macOS, this new version has been refactored to work on both macOS and Linux. It calculates the size of installed applications (including Homebrew formulas and casks on macOS) and provides an interactive interface for safely deleting applications along with their associated files.
 
 <img src="./images/msm.png" alt="Mac Storage Manager" width="640"/>
@@ -41,6 +43,20 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 > **Tip:** Hold down Ctrl (Windows/Linux) or Cmd (Mac) and click the image to open the video in a new tab.
 
 Click the image to watch the demo video on YouTube.
+
+---
+
+## Continuous Integration
+
+This project now uses GitHub Actions for continuous integration. Every push and pull request to the `main` branch triggers a workflow that:
+
+- Updates Homebrew and runs `brew doctor`
+- Installs dependencies (jq, newt)
+- Builds and installs the formula from source
+- Runs tests (using `brew test mac-storage-manager`)
+- Performs a strict audit of the formula
+
+You can always check the current CI status using the badge above.
 
 ---
 
