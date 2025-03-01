@@ -29,7 +29,8 @@ jobs:
 
       - name: Build and install formula from source
         run: |
-          brew install --build-from-source Formula/m/mac-storage-manager.rb
+          brew install --build-from-source Formula/mac-storage-manager.rb
+
 
       - name: Run tests
         run: |
@@ -67,7 +68,7 @@ jobs:
       - name: Build and install formula from source
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install --build-from-source Formula/m/mac-storage-manager.rb
+          brew install --build-from-source Formula/mac-storage-manager.rb
 
       - name: Run tests
         run: |
