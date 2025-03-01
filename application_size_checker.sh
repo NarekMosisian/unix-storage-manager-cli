@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 # ===================================================================================
 # Mac Storage Manager - Cross-Platform Version (macOS/Linux)
 #

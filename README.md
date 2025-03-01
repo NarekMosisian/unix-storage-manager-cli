@@ -48,15 +48,16 @@ Click the image to watch the demo video on YouTube.
 
 ## Continuous Integration
 
-This project now uses GitHub Actions for continuous integration. Every push and pull request to the `main` branch triggers a workflow that:
+This project uses GitHub Actions for continuous integration. Every push and pull request to the `main` branch triggers a workflow that:
 
-- Updates Homebrew and runs `brew doctor`
+- Updates Homebrew (ignoring non-critical warnings)
 - Installs dependencies (jq, newt)
-- Builds and installs the formula from source
+- **Taps the external Homebrew repository** ([NarekMosisian/mac-storage-manager](https://github.com/NarekMosisian/homebrew-mac-storage-manager))
+- Installs the `mac-storage-manager` formula
 - Runs tests (using `brew test mac-storage-manager`)
 - Performs a strict audit of the formula
 
-You can always check the current CI status using the badge above.
+You can always check the current CI status using the badge at the top.
 
 ---
 
