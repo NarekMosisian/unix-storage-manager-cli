@@ -2,17 +2,69 @@ name: Continuous Integration
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build:
+  macos:
     runs-on: macos-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Update Homebrew and run doctor
+        run: |
+          brew update
+          brew doctor
+
       - name: Install dependencies
-        run: brew install jq
+        run: |
+          brew install jq newt
+
+      - name: Uninstall previous version (if any)
+        run: brew uninstall mac-storage-manager || true
+
+      - name: Build and install formula from source
+        run: |
+          brew install --build-from-source Formula/m/mac-storage-manager.rb
+
+      - name: Run tests
+        run: |
+          brew test mac-storage-manager
+          brew audit --strict mac-storage-manager
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Homebrew on Linux
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> $HOME/.profile
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+      - name: Update Homebrew and run doctor
+        run: |
+          brew update
+          brew doctor
+
+      - name: Install dependencies
+        run: |
+          brew install jq newt
+
+      - name: Uninstall previous version (if any)
+        run: brew uninstall mac-storage-manager || true
+
+      - name: Build and install formula from source
+        run: |
+          brew install --build-from-source Formula/m/mac-storage-manager.rb
+
+      - name: Run tests
+        run: |
+          brew test mac-storage-manager
+          brew audit --strict mac-storage-manager
