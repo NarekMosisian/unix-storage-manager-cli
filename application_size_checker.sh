@@ -6,11 +6,24 @@
 # © 2024 Narek Mosisian. All rights reserved.
 # ===================================================================================
 
+LOG_FILE="application_size_checker.log"
+
 # OS detection
 OS_TYPE=$(uname)
 if [ "$OS_TYPE" != "Darwin" ] && [ "$OS_TYPE" != "Linux" ]; then
     echo "This script currently only supports macOS and Linux." >&2
     exit 1
+fi
+
+if [ "$1" = "--test-run" ]; then
+  if [ "$OS_TYPE" = "Darwin" ]; then
+    echo "Dummy.app"
+  else
+    echo "dummy.desktop"
+  fi
+  echo "DEBUG: SOUND_PATH=$MAC_STORAGE_MANAGER_SHARE/sounds" > application_size_checker.log
+  ls -l "$MAC_STORAGE_MANAGER_SHARE/sounds" >> application_size_checker.log 2>&1
+  exit 0
 fi
 
 # For Linux: Set XDG variables (if not already set)
@@ -29,8 +42,6 @@ fi
 
 echo "DEBUG: SOUND_PATH=$SOUND_PATH" >> "$LOG_FILE"
 ls -l "$SOUND_PATH" >> "$LOG_FILE" 2>&1
-
-LOG_FILE="application_size_checker.log"
 
 # Sound player command depending on OS
 if [ "$OS_TYPE" = "Linux" ]; then
