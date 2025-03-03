@@ -164,7 +164,7 @@ Once the script has gathered the sizes of all applications, a graphical interfac
 
 ## Known Limitations and Common Issues
 
-- **Performance**: Searching the entire system with sudo find can be very time-consuming and may strain system resources.
+- **Performance**: Searching the entire system with sudo find can be time-consuming and may strain system resources.
 - **Permissions**: Ensure you have the necessary permissions to uninstall applications and delete files.
 - **Security Warning**: Be cautious when deleting applications and files to avoid data loss.
 - **Shell Compatibility**: The script is written for zsh. Ensure you have zsh installed.
@@ -225,10 +225,6 @@ When you confirm the deletion of an application, the script attempts to thorough
         - Common log directories (if any) related to the application
 
 - **Additional Files Found via `sudo find` (optional)**: Any files matching the application name found during the `sudo find` operation (if you chose to include this step). The script will display these files and ask for your confirmation before deletion.
-
-## Log File
-
-The script creates a log file `application_size_checker.log` where errors and warnings are recorded. Check this file if you encounter issues during execution.
 
 ## Warning
 
