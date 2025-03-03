@@ -54,6 +54,8 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 - **Logging**:  
   - Records errors and detailed process logs in `application_size_checker.log`.
 
+---
+
 ## Log File
 
 The script creates the log file `application_size_checker.log`, which records important events and error messages. In addition to error and debug messages, the log file contains the following information:
@@ -74,6 +76,8 @@ The script creates the log file `application_size_checker.log`, which records im
 
 This comprehensive logging provides a complete overview of the script's execution and helps you pinpoint where the process may have failed in case any issues occur.
 
+---
+
 ## Watch the Demo
 
 <a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
@@ -83,6 +87,8 @@ This comprehensive logging provides a complete overview of the script's executio
 > **Tip:** Hold down Ctrl (Windows/Linux) or Cmd (Mac) and click the image to open the video in a new tab.
 
 Click the image to watch the demo video on YouTube.
+
+---
 
 ## Continuous Integration
 
@@ -178,12 +184,16 @@ Once the script has gathered the sizes of all applications, a graphical interfac
     Prompt you for each category of associated files (Application Support, Preferences, Caches, Logs, Saved Application State) whether you want to delete them.
     Optionally delete any additional files found via sudo find that are associated with the application.
 
+---
+
 ## Known Limitations and Common Issues
 
 - **Performance**: Searching the entire system with sudo find can be time-consuming and may strain system resources.
 - **Permissions**: Ensure you have the necessary permissions to uninstall applications and delete files.
 - **Security Warning**: Be cautious when deleting applications and files to avoid data loss.
 - **Shell Compatibility**: The script is written for zsh. Ensure you have zsh installed.
+
+---
 
 ## Dependencies
 
@@ -195,6 +205,8 @@ This script relies on the following tools:
 - **newt**: For terminal-based GUI dialogs.
 
 Make sure these dependencies are installed before running the script.
+
+---
 
 ## What Exactly is Deleted
 
@@ -242,6 +254,8 @@ When you confirm the deletion of an application, the script attempts to thorough
 
 - **Additional Files Found via `sudo find` (optional)**: Any files matching the application name found during the `sudo find` operation (if you chose to include this step). The script will display these files and ask for your confirmation before deletion.
 
+---
+
 ## Warning
 
 Please read the following carefully before using the script:
@@ -251,9 +265,13 @@ Please read the following carefully before using the script:
 - **No Undo**: Deleting applications and files is permanent and cannot be undone. Consider backing up important data before proceeding.
 - **Use at Your Own Risk**: The script is provided "as is," without warranty of any kind. The author is not responsible for any damage or data loss that may occur as a result of using this script.
 
+---
+
 ## Connect with me
 
 If you have any questions or want to discuss the project further, feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/narek-mosisian-484789291/).
+
+---
 
 ## License
 
