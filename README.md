@@ -6,6 +6,28 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 
 <img src="./images/msm.png" alt="Mac Storage Manager" width="640"/>
 
+---
+
+## Table of Contents
+- [Features](#features)
+- [Log File](#log-file)
+- [Watch the Demo](#watch-the-demo)
+- [Continuous Integration](#continuous-integration)
+- [How to Use](#how-to-use)
+  - [Step 1: Clone the Repository](#step-1-clone-the-repository)
+  - [Step 2: Make the Script Executable](#step-2-make-the-script-executable)
+  - [Step 3: Install Dependencies](#step-3-install-dependencies)
+  - [Step 4: Run the Script](#step-4-run-the-script)
+  - [Step 5: Follow the Interactive Prompt](#step-5-follow-the-interactive-prompt)
+- [Known Limitations and Common Issues](#known-limitations-and-common-issues)
+- [Dependencies](#dependencies)
+- [What Exactly is Deleted](#what-exactly-is-deleted)
+- [Warning](#warning)
+- [Connect with me](#connect-with-me)
+- [License](#license)
+
+---
+
 ## Features
 
 - **Cross-Platform Support**:  
