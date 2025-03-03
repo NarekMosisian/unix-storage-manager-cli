@@ -11,6 +11,7 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 ## Table of Contents
 - [Features](#features)
 - [Log File](#log-file)
+- [Homebrew](#homebrew)
 - [Watch the Demo](#watch-the-demo)
 - [Continuous Integration](#continuous-integration)
 - [How to Use](#how-to-use)
@@ -78,6 +79,16 @@ This comprehensive logging provides a complete overview of the script's executio
 
 ---
 
+## Homebrew
+
+For macOS users, a dedicated Homebrew tap is provided specifically for Mac Storage Manager. This tap ensures that the Homebrew formula is always up-to-date and error-free. You can check it out at the following link:
+
+[**NarekMosisian/homebrew-mac-storage-manager**](https://github.com/NarekMosisian/homebrew-mac-storage-manager)
+
+The tap also includes its own CI configuration to ensure continuous updates and error-free operation of the formula.
+
+---
+
 ## Watch the Demo
 
 <a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
@@ -101,10 +112,6 @@ This project uses GitHub Actions for continuous integration. Every push and pull
 - Performs a strict audit of the formula
 
 You can view the current CI status using the badge at the top.
-
----
-
-**Note:** A Homebrew tap for Mac Storage Manager is available. Check it out at [NarekMosisian/homebrew-mac-storage-manager](https://github.com/NarekMosisian/homebrew-mac-storage-manager). This tap includes its own CI configuration to ensure the formula is always up-to-date and error-free.
 
 ---
 
