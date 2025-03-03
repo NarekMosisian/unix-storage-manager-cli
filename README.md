@@ -34,6 +34,28 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 
 ---
 
+## Log File
+
+The script creates the log file `application_size_checker.log`, which records important events and error messages. In addition to error and debug messages, the log file contains the following information:
+
+- **Timestamps**:  
+  - **Script Start and End**: Timestamps are explicitly logged at the beginning and the end of the script using the `date` command.
+
+- **Debug Information**:  
+  - The sound path used by the script is logged at the start (e.g., `DEBUG: SOUND_PATH=...`).  
+  - Outputs of commands like `ls -l` (for instance, the contents of the sound directory) are recorded.
+
+- **Error Messages and Warnings**:  
+  - Detailed logs are kept for errors when accessing files or deleting applications (both in the main script and when removing associated files).  
+  - Notifications for failed or canceled sudo password prompts, as well as any unsuccessful Homebrew operations (e.g., during uninstallation), are logged.
+
+- **Progress Updates**:  
+  - During long-running operations (e.g., searching for applications, calculating sizes, or deleting files), progress updates and the corresponding process steps (e.g., "Deleting...", "Running 'sudo find'...") are recorded in the log file.
+
+This comprehensive logging provides a complete overview of the script's execution and helps you pinpoint where the process may have failed in case any issues occur.
+
+---
+
 ## Watch the Demo
 
 <a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
