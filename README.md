@@ -54,8 +54,6 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 - **Logging**:  
   - Records errors and detailed process logs in `application_size_checker.log`.
 
----
-
 ## Log File
 
 The script creates the log file `application_size_checker.log`, which records important events and error messages. In addition to error and debug messages, the log file contains the following information:
@@ -76,8 +74,6 @@ The script creates the log file `application_size_checker.log`, which records im
 
 This comprehensive logging provides a complete overview of the script's execution and helps you pinpoint where the process may have failed in case any issues occur.
 
----
-
 ## Watch the Demo
 
 <a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
@@ -87,8 +83,6 @@ This comprehensive logging provides a complete overview of the script's executio
 > **Tip:** Hold down Ctrl (Windows/Linux) or Cmd (Mac) and click the image to open the video in a new tab.
 
 Click the image to watch the demo video on YouTube.
-
----
 
 ## Continuous Integration
 
