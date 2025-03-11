@@ -221,7 +221,7 @@ When you confirm the deletion of an application, the script attempts to thorough
 
 - **Main Application Files**: 
     - **On macOS**: The application bundle from `/Applications` and `~/Applications`.
-    - **On Linux**: The corresponding .desktop files from /usr/share/applications or ~/.local/share/applications.
+    - **On Linux**: The corresponding .desktop files from `/usr/share/applications` or `~/.local/share/` applications.
 
 - **Homebrew Files** (macOS only):
     - Uninstalls associated Homebrew formulas and casks installed via Homebrew.
