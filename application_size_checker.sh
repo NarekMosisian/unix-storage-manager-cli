@@ -40,8 +40,18 @@ if [ -n "$MAC_STORAGE_MANAGER_SHARE" ]; then
     SOUND_PATH="$MAC_STORAGE_MANAGER_SHARE/sounds"
 fi
 
-echo "DEBUG: SOUND_PATH=$SOUND_PATH" >> "$LOG_FILE"
-ls -l "$SOUND_PATH" >> "$LOG_FILE" 2>&1
+# Initialize log file and record start time
+if [ ! -f "$LOG_FILE" ]; then
+    touch "$LOG_FILE"
+fi
+echo "Script started at $(date)" >> "$LOG_FILE"
+
+# Sound check: Only log success or failure for sound check
+if [ -f "$SOUND_PATH/switch.wav" ]; then
+    echo "Sound check successful" >> "$LOG_FILE"
+else
+    echo "Sound check failed: switch.wav not found in $SOUND_PATH" >> "$LOG_FILE"
+fi
 
 # Sound player command depending on OS
 if [ "$OS_TYPE" = "Linux" ]; then
@@ -49,9 +59,6 @@ if [ "$OS_TYPE" = "Linux" ]; then
 else
     SOUND_PLAYER="afplay"
 fi
-
-# Write start time to the log
-echo "Script started at $(date)" >> "$LOG_FILE"
 
 # Initialize sudo password
 sudo_password=""
@@ -270,8 +277,7 @@ gather_application_sizes() {
                 extension="desktop"
             fi
 
-            # Pfade eindeutig machen und nur den Basename mit Größe ausgeben.
-            # Danach erneut nach dem ersten Feld (Basename) sortieren, um Duplikate zu entfernen.
+            # Make paths unique and output only the basename with size.
             echo "$sudo_password" | sudo -S find / -iname "*.${extension}" -type d -maxdepth 5 -print0 2>/dev/null \
                 | sort -z -u \
                 | while IFS= read -r -d '' app; do
@@ -315,7 +321,7 @@ format_and_sort_results() {
         formatted_size=$(format_size "$app_size_kb")
         formatted_items+=("$app_name:$formatted_size:$app_size_kb")
     done
-    # Sortiert nach drittem Feld (KB-Zahl) absteigend
+    # Sorted by third field (KB number) descending
     printf "%s\n" "${formatted_items[@]}" | sort -t':' -k3nr
 }
 
@@ -726,7 +732,7 @@ combine_results() {
       for item in "${sorted_items[@]}"; do
           local app_name=$(echo "$item" | cut -d':' -f1)
           local app_size=$(echo "$item" | cut -d':' -f2)
-          echo "App '$app_name' size: $app_size"
+          echo "$app_name size: $app_size" >> "$LOG_FILE"
       done
     } >> "$LOG_FILE"
 }
@@ -749,18 +755,11 @@ check_homebrew() {
     fi
 }
 
-initialize_log() {
-    if [ ! -f "$LOG_FILE" ]; then
-        touch "$LOG_FILE"
-    fi
-}
-
 cleanup() {
     rm -f brew_formula_sizes.txt brew_cask_sizes.txt applications_sizes.txt home_applications_sizes.txt sudo_find_results.txt
 }
 trap cleanup EXIT
 
-initialize_log
 check_homebrew
 handle_sudo_find
 combine_results
@@ -769,4 +768,5 @@ interactive_app_selection "${sorted_items[@]}"
 show_about
 
 sudo_password=""
+echo "===========================================" >> "$LOG_FILE"
 echo "Script ended at $(date)" >> "$LOG_FILE"
