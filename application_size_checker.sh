@@ -402,6 +402,32 @@ delete_application() {
 
     echo "Attempting to delete: $app_name" >> "$LOG_FILE"
 
+    local normalized_name=$(echo "$app_name" | sed 's/\.app$//i' | sed 's/\.desktop$//i' | tr '[:upper:]' '[:lower:]')
+
+    if command -v brew &>/dev/null && brew list --cask | grep -q "^$normalized_name\$"; then
+        echo "$app_name is installed as a Homebrew cask. Uninstalling via brew..." >> "$LOG_FILE"
+        if brew uninstall --cask "$normalized_name" >> "$LOG_FILE" 2>&1; then
+            echo "Successfully uninstalled cask $normalized_name." >> "$LOG_FILE"
+            brew cleanup "$normalized_name" >> "$LOG_FILE" 2>&1
+        else
+            echo "Failed to uninstall cask $normalized_name." >> "$LOG_FILE"
+            display_error "Failed to uninstall cask $app_name."
+        fi
+        return
+    fi
+
+    if command -v brew &>/dev/null && brew list --formula | grep -q "^$normalized_name\$"; then
+        echo "$app_name is installed as a Homebrew formula. Uninstalling via brew..." >> "$LOG_FILE"
+        if brew uninstall --formula "$normalized_name" >> "$LOG_FILE" 2>&1; then
+            echo "Successfully uninstalled formula $normalized_name." >> "$LOG_FILE"
+            brew cleanup "$normalized_name" >> "$LOG_FILE" 2>&1
+        else
+            echo "$app_name could not be uninstalled due to dependencies. Attempting force uninstall." >> "$LOG_FILE"
+            brew uninstall --formula --ignore-dependencies "$normalized_name" >> "$LOG_FILE" 2>&1
+        fi
+        return
+    fi
+
     if [ "$app_name" = "Docker.app" ] || [ "$app_name" = "Docker.desktop" ]; then
         if command -v brew &>/dev/null && brew list --cask | grep -q "^docker\$"; then
             echo "Docker is installed via Homebrew. Uninstalling..." >> "$LOG_FILE"
@@ -431,30 +457,6 @@ delete_application() {
                 echo "Docker application not found in standard locations." >> "$LOG_FILE"
                 display_error "Docker application not found in standard locations."
             fi
-        fi
-        return
-    fi
-
-    if command -v brew &>/dev/null && brew list --cask | grep -q "^$app_name\$"; then
-        echo "$app_name is installed as a Homebrew cask. Uninstalling..." >> "$LOG_FILE"
-        if brew uninstall --cask "$app_name" >> "$LOG_FILE" 2>&1; then
-            echo "Successfully uninstalled cask $app_name." >> "$LOG_FILE"
-            brew cleanup "$app_name" >> "$LOG_FILE" 2>&1
-        else
-            echo "Failed to uninstall cask $app_name." >> "$LOG_FILE"
-            display_error "Failed to uninstall cask $app_name."
-        fi
-        return
-    fi
-
-    if command -v brew &>/dev/null && brew list --formula | grep -q "^$app_name\$"; then
-        echo "$app_name is installed as a Homebrew formula. Uninstalling..." >> "$LOG_FILE"
-        if ! brew uninstall --formula "$app_name" >> "$LOG_FILE" 2>&1; then
-            echo "$app_name could not be uninstalled due to dependencies. Attempting force uninstall with --ignore-dependencies." >> "$LOG_FILE"
-            brew uninstall --formula --ignore-dependencies "$app_name" >> "$LOG_FILE" 2>&1
-        else
-            echo "Successfully uninstalled formula $app_name." >> "$LOG_FILE"
-            brew cleanup "$app_name" >> "$LOG_FILE" 2>&1
         fi
         return
     fi
