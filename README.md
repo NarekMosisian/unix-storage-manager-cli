@@ -4,6 +4,8 @@
 
 Mac Storage Manager is now a fully modularized shell script suite that helps you reclaim disk space by identifying and managing large applications on your system. Originally created for macOS, this new version has been completely refactored and expanded for cross‑platform support on both macOS and Linux, and is now split into nine modular .sh files for improved maintainability, extensibility, and clarity.
 
+<img src="./images/msm.png" alt="Mac Storage Manager" width="640"/>
+
 ---
 
 ## Table of Contents
@@ -71,16 +73,16 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
 ```plaintext
 /mac-storage-manager
 │
-├── config.sh              # Enthält Konfigurationsvariablen und Spracheinstellungen
-├── deletion.sh            # Funktionen zum Deinstallieren/Entfernen von Anwendungen
-├── logging.sh             # Funktionen zum Loggen, Fortschritt-Update, Logfile-Rekonstruktion
-├── main.sh                # Haupt-Einstiegspunkt; bindet alle Module ein und startet das Programm
-├── menu.sh                # Implementiert die interaktive UI-Menüs und Sprachauswahl
-├── size_calculations.sh   # Funktionen zur Berechnung/Formatierung von App-Größen
-├── sound.sh               # Funktionen zum Abspielen von Soundeffekten, abhängig vom Betriebssystem
-├── sudo_utils.sh          # Enthält sudo-Authentifizierung und Ausführung mit Root-Rechten
-├── translations.sh        # Mehrsprachige Übersetzungen und Hilfsfunktionen
-└── README.md              # Diese Datei
+├── config.sh              # Contains configuration variables and language settings
+├── deletion.sh            # Functions for uninstalling/deleting applications
+├── logging.sh             # Functions for logging, progress updates, and log file reconstruction
+├── main.sh                # Main entry point; sources all modules and starts the program
+├── menu.sh                # Implements interactive UI menus and language selection
+├── size_calculations.sh   # Functions for calculating/formatting application sizes
+├── sound.sh               # Functions for playing sound effects based on the operating system
+├── sudo_utils.sh          # Contains sudo authentication and execution with root privileges
+├── translations.sh        # Multilingual translations and helper functions
+└── README.md              # This file
 ```
 
 ---
