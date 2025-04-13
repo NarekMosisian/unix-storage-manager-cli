@@ -2,7 +2,7 @@
 # deletion.sh
 
 # ------------------------------------------------------------------------------------------------------
-# Mac Storage Manager - Cross-Platform Version (macOS/Linux)
+# Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
 #
 #  This script was created by Narek Mosisian. For more information, visit:
 #      https://github.com/NarekMosisian/mac-storage-manager
@@ -164,6 +164,7 @@ confirm_deletion() {
                 log_message "Critical error: Sudo authentication failed during deletion."
                 whiptail --title "$(get_text log_file_status_title)" --msgbox "$(get_text log_file_updated_message)" 8 60 \
                     --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"
+                interactive_app_selection "${sorted_items[@]}"
                 return
             fi
             for app in "${apps_to_delete[@]}"; do
@@ -176,6 +177,12 @@ confirm_deletion() {
                 fi
                 sleep 1
             done
+
+            ask_to_delete_associated_files "${apps_to_delete[@]}"
+
+            whiptail --title "$(get_text confirm_deletion)" --msgbox "$(get_text selected_apps_processed)" 8 60 \
+                --ok-button "$(get_ok_button)"
+
             whiptail --title "$(get_text log_file_status_title)" --msgbox "$(get_text log_file_updated_message)" 8 60 \
                 --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"
             SUDO_PASSWORD=""
@@ -199,63 +206,63 @@ ask_to_delete_associated_files() {
 
     ensure_sudo_valid
     if [ $? -ne 0 ]; then
-        whiptail --title "$(get_text error)" --msgbox "$(get_text critical_error_sudo_failed_associated)" 8 60 \
+        whiptail --title "$(get_text short_error)" --msgbox "$(get_text critical_error_sudo_failed_associated)" 8 60 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"
         log_message "$(get_text critical_error_sudo_failed_associated)"
         return
     fi
 
     if [ "$OS_TYPE" = "Darwin" ]; then
-        if whiptail --title "$(get_text delete_application_support_title)" \
+        if whiptail --title "$(get_text short_delete_app_support_title)" \
             --yesno "$(get_text delete_application_support_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_app_files=true
         fi
-        if whiptail --title "$(get_text delete_preferences_title)" \
+        if whiptail --title "$(get_text short_delete_preferences_title)" \
             --yesno "$(get_text delete_preferences_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_config_files=true
         fi
-        if whiptail --title "$(get_text delete_caches_title)" \
+        if whiptail --title "$(get_text short_delete_caches_title)" \
             --yesno "$(get_text delete_caches_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_cache_files=true
         fi
-        if whiptail --title "$(get_text delete_logs_title)" \
+        if whiptail --title "$(get_text short_delete_logs_title)" \
             --yesno "$(get_text delete_logs_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_log_files=true
         fi
-        if whiptail --title "$(get_text delete_saved_state_title)" \
+        if whiptail --title "$(get_text short_delete_saved_state_title)" \
             --yesno "$(get_text delete_saved_state_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_saved_state=true
         fi
     elif [ "$OS_TYPE" = "Linux" ]; then
-        if whiptail --title "$(get_text delete_application_data_title)" \
+        if whiptail --title "$(get_text short_delete_app_data_title)" \
             --yesno "$(get_text delete_application_data_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_app_files=true
         fi
-        if whiptail --title "$(get_text delete_configuration_title)" \
+        if whiptail --title "$(get_text short_delete_configuration_title)" \
             --yesno "$(get_text delete_configuration_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_config_files=true
         fi
-        if whiptail --title "$(get_text delete_cache_files_title)" \
+        if whiptail --title "$(get_text short_delete_cache_files_title)" \
             --yesno "$(get_text delete_cache_files_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
                 delete_cache_files=true
         fi
-        if whiptail --title "$(get_text delete_log_files_title)" \
+        if whiptail --title "$(get_text short_delete_log_files_title)" \
             --yesno "$(get_text delete_log_files_title)" 8 78 \
             --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"; then
                 play_key_sound
