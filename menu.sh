@@ -2,7 +2,7 @@
 # menu.sh
 
 # ------------------------------------------------------------------------------------------------------
-# Mac Storage Manager - Cross-Platform Version (macOS/Linux)
+# Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
 #
 #  This script was created by Narek Mosisian. For more information, visit:
 #      https://github.com/NarekMosisian/mac-storage-manager
