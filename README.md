@@ -66,6 +66,9 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
   - The user can change the language dynamically through the language selection menu.
   - Translations are provided for over 40 languages, making the tool accessible worldwide.
 
+
+<img src="./images/language.jpg" alt="language selection" width="640"/>
+
 ---
 
 ## Project Structure
