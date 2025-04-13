@@ -34,7 +34,7 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
 - **Cross-Platform Compatibility:**
   - Scans standard application directories on both macOS and Linux.
   - Supports Homebrew formulas and casks on macOS.
-  - Optionally performs a comprehensive system search using \`sudo find\`.
+  - Optionally performs a comprehensive system search using `sudo find`.
 
 - **Modular Design:**
   - The project is now divided into 9 distinct shell scripts:
@@ -46,11 +46,11 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
     - **size_calculations.sh:** Calculates application sizes from various sources.
     - **translations.sh:** Provides full internationalization (i18n) support with over 40 languages.
     - **config.sh:** Manages configuration variables including language settings.
-    - **sound.sh:** Plays OS‑dependent sound feedback using either \`afplay\` (macOS) or \`paplay\` (Linux).
+    - **sound.sh:** Plays OS‑dependent sound feedback using either `afplay` (macOS) or `paplay` (Linux).
   - This new modular architecture makes the project easier to maintain and extend.
 
 - **Enhanced Logging & Progress Feedback:**
-  - Detailed logs (stored in \`application_size_checker.log\`) are generated throughout the operation.
+  - Detailed logs (stored in `application_size_checker.log`) are generated throughout the operation.
   - A dynamic progress gauge is displayed during long‑running operations.
   - Advanced error handling is provided via interactive whiptail dialogs and extensive logging.
 
@@ -68,20 +68,20 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
 
 ## Project Structure
 
-\`\`\`plaintext
+```plaintext
 /mac-storage-manager
 │
-├── config.sh              # Contains configuration variables and language settings
-├── deletion.sh            # Functions for deleting/uninstalling applications
-├── logging.sh             # Functions for logging, updating progress, and log file reconstruction
-├── main.sh                # Main entry point; sources all modules and starts the program
-├── menu.sh                # Implements the interactive UI menus and language selection
-├── size_calculations.sh   # Functions for calculating and formatting application sizes
-├── sound.sh               # Functions for playing sound feedback on key events
-├── sudo_utils.sh          # Sudo authentication and privileged command execution functions
-├── translations.sh        # Multi-language translations and helper functions
-└── README.md              # This file
-\`\`\`
+├── config.sh              # Enthält Konfigurationsvariablen und Spracheinstellungen
+├── deletion.sh            # Funktionen zum Deinstallieren/Entfernen von Anwendungen
+├── logging.sh             # Funktionen zum Loggen, Fortschritt-Update, Logfile-Rekonstruktion
+├── main.sh                # Haupt-Einstiegspunkt; bindet alle Module ein und startet das Programm
+├── menu.sh                # Implementiert die interaktive UI-Menüs und Sprachauswahl
+├── size_calculations.sh   # Funktionen zur Berechnung/Formatierung von App-Größen
+├── sound.sh               # Funktionen zum Abspielen von Soundeffekten, abhängig vom Betriebssystem
+├── sudo_utils.sh          # Enthält sudo-Authentifizierung und Ausführung mit Root-Rechten
+├── translations.sh        # Mehrsprachige Übersetzungen und Hilfsfunktionen
+└── README.md              # Diese Datei
+```
 
 ---
 
@@ -91,18 +91,18 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
 
 Clone the repository to your local machine:
 
-\`\`\`bash
+```bash
 git clone https://github.com/NarekMosisian/mac-storage-manager.git
-\`\`\`
+```
 
 ### Make Scripts Executable
 
 After cloning, navigate to the project directory and run:
 
-\`\`\`bash
+```bash
 cd mac-storage-manager
 chmod +x *.sh
-\`\`\`
+```
 
 ### Install Dependencies
 
@@ -111,21 +111,21 @@ Ensure you have the following dependencies installed:
 - **jq** (for JSON parsing)
 - **newt/whiptail** (for interactive terminal dialogs)
 - **Sound utilities:**
-  - On macOS, the \`afplay\` command is used (usually pre‑installed).
-  - On Linux, \`paplay\` is used (install via your package manager).
+  - On macOS, the `afplay` command is used (usually pre‑installed).
+  - On Linux, `paplay` is used (install via your package manager).
 
 For macOS via Homebrew:
 
-\`\`\`bash
+```bash
 brew install jq newt
-\`\`\`
+```
 
 For Debian/Ubuntu (Linux):
 
-\`\`\`bash
+```bash
 sudo apt-get update
 sudo apt-get install jq newt paplay
-\`\`\`
+```
 
 ---
 
@@ -135,9 +135,9 @@ sudo apt-get install jq newt paplay
 
 Start the application by running the main entry point:
 
-\`\`\`bash
+```bash
 ./main.sh
-\`\`\`
+```
 
 This script loads all modules, handles the language selection, and presents an interactive menu for scanning, selecting, and deleting applications.
 
@@ -151,7 +151,7 @@ This script loads all modules, handles the language selection, and presents an i
 
 ## Logging and Sudo Handling
 
-- Detailed logs are written to \`application_size_checker.log\` to capture every event and error.
+- Detailed logs are written to `mac_storage_manager.log` to capture every event and error.
 - Sudo handling is robust:
   - Prompts for the sudo password when required.
   - Validates and caches the sudo password for use in later commands.
@@ -161,8 +161,8 @@ This script loads all modules, handles the language selection, and presents an i
 
 ## Internationalization & Translations
 
-- The \`translations.sh\` module includes all user‑visible strings in over 40 languages.
-- Use helper functions (e.g., \`get_text\`, \`get_yes_button\`, \`get_no_button\`, etc.) to retrieve localized strings.
+- The `translations.sh` module includes all user‑visible strings in over 40 languages.
+- Use helper functions (e.g., `get_text`, `get_yes_button`, `get_no_button`, etc.) to retrieve localized strings.
 - Easily add new languages or update existing translations as needed.
 
 ---
@@ -193,7 +193,7 @@ This script loads all modules, handles the language selection, and presents an i
 
 ## Known Limitations and Common Issues
 
-- **Performance:** Scanning the entire filesystem with \`sudo find\` can be slow.
+- **Performance:** Scanning the entire filesystem with `sudo find` can be slow.
 - **Permissions:** Ensure you have sufficient permissions to delete system files.
 - **Interactive Dialogs:** The project uses whiptail/newt; make sure they are installed correctly on your system.
 - **Shell Compatibility:** It is recommended to use bash for running the scripts to ensure full compatibility.
