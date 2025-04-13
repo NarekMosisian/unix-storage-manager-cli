@@ -52,7 +52,7 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
   - This new modular architecture makes the project easier to maintain and extend.
 
 - **Enhanced Logging & Progress Feedback:**
-  - Detailed logs (stored in `application_size_checker.log`) are generated throughout the operation.
+  - Detailed logs (stored in `mac_storage_manager.log`) are generated throughout the operation.
   - A dynamic progress gauge is displayed during long‑running operations.
   - Advanced error handling is provided via interactive whiptail dialogs and extensive logging.
 
