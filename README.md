@@ -1,25 +1,25 @@
-# Mac Storage Manager – Cross-Platform Version (macOS & Linux)
+# Mac Storage Manager – Cross-Platform internationalized Version (macOS & Linux)
 
 ![CI](https://github.com/NarekMosisian/mac-storage-manager/actions/workflows/ci.yml/badge.svg)
 
-Mac Storage Manager is a shell script that helps you reclaim disk space by identifying and managing large applications on your system. Originally built for macOS, this new version has been refactored to work on both macOS and Linux. It calculates the size of installed applications (including Homebrew formulas and casks on macOS) and provides an interactive interface for safely deleting applications along with their associated files.
-
-<img src="./images/msm.png" alt="Mac Storage Manager" width="640"/>
+Mac Storage Manager is now a fully modularized shell script suite that helps you reclaim disk space by identifying and managing large applications on your system. Originally created for macOS, this new version has been completely refactored and expanded for cross‑platform support on both macOS and Linux, and is now split into nine modular .sh files for improved maintainability, extensibility, and clarity.
 
 ---
 
 ## Table of Contents
 - [Features](#features)
-- [Log File](#log-file)
-- [Homebrew](#homebrew)
-- [Watch the Demo](#watch-the-demo)
-- [Continuous Integration](#continuous-integration)
+- [Project Structure](#project-structure)
+- [Installation and Setup](#installation-and-setup)
+  - [Clone the Repository](#clone-the-repository)
+  - [Make Scripts Executable](#make-scripts-executable)
+  - [Install Dependencies](#install-dependencies)
 - [How to Use](#how-to-use)
-  - [Step 1: Clone the Repository](#step-1-clone-the-repository)
-  - [Step 2: Make the Script Executable](#step-2-make-the-script-executable)
-  - [Step 3: Install Dependencies](#step-3-install-dependencies)
-  - [Step 4: Run the Script](#step-4-run-the-script)
-  - [Step 5: Follow the Interactive Prompt](#step-5-follow-the-interactive-prompt)
+  - [Run the Project](#run-the-project)
+  - [Interactive Language Selection](#interactive-language-selection)
+- [Logging and Sudo Handling](#logging-and-sudo-handling)
+- [Internationalization & Translations](#internationalization--translations)
+- [Homebrew Support](#homebrew-support)
+- [Continuous Integration](#continuous-integration)
 - [Known Limitations and Common Issues](#known-limitations-and-common-issues)
 - [Dependencies](#dependencies)
 - [What Exactly is Deleted](#what-exactly-is-deleted)
@@ -31,174 +31,172 @@ Mac Storage Manager is a shell script that helps you reclaim disk space by ident
 
 ## Features
 
-- **Cross-Platform Support**:  
-  - **macOS**: Scans `/Applications` and `~/Applications` for `.app` bundles.
-  - **Linux**: Scans `/usr/share/applications` and `~/.local/share/applications` for `.desktop` files.
-  
-- **Size Calculation**:  
-  - Calculates sizes for Homebrew formulas and casks (macOS only).
-  - Scans standard application directories.
-  - Optionally performs a comprehensive search using `sudo find`.
+- **Cross-Platform Compatibility:**
+  - Scans standard application directories on both macOS and Linux.
+  - Supports Homebrew formulas and casks on macOS.
+  - Optionally performs a comprehensive system search using \`sudo find\`.
 
-- **Interactive Deletion**:  
-  - Graphical dialogs using whiptail for selecting applications to delete.
-  - Prompts for confirmation before deleting main files and associated files.
+- **Modular Design:**
+  - The project is now divided into 9 distinct shell scripts:
+    - **main.sh:** Entry point; sources all other modules.
+    - **deletion.sh:** Contains functions for uninstallation and deletion of applications.
+    - **menu.sh:** Implements the interactive user interface and main menu.
+    - **logging.sh:** Records process events, errors, and debugging information.
+    - **sudo_utils.sh:** Manages sudo authentication and command execution with privileges.
+    - **size_calculations.sh:** Calculates application sizes from various sources.
+    - **translations.sh:** Provides full internationalization (i18n) support with over 40 languages.
+    - **config.sh:** Manages configuration variables including language settings.
+    - **sound.sh:** Plays OS‑dependent sound feedback using either \`afplay\` (macOS) or \`paplay\` (Linux).
+  - This new modular architecture makes the project easier to maintain and extend.
 
-- **Selective Associated File Deletion**:  
-  - **macOS**: Offers to remove Application Support, Preferences, Caches, Logs, and Saved Application State.
-  - **Linux**: Offers to remove Application Data, Configuration, Cache, and Log files based on XDG directories.
+- **Enhanced Logging & Progress Feedback:**
+  - Detailed logs (stored in \`application_size_checker.log\`) are generated throughout the operation.
+  - A dynamic progress gauge is displayed during long‑running operations.
+  - Advanced error handling is provided via interactive whiptail dialogs and extensive logging.
 
-- **Progress and Audio Feedback**:  
-  - Displays progress bars during long-running tasks.
-  - Plays sound effects for key actions (using `afplay` on macOS and `paplay` on Linux).
+- **Interactive Application Deletion:**
+  - Applications are listed with calculated sizes (including Homebrew formulas and casks).
+  - Users can select one or more apps to delete using an interactive checklist UI.
+  - Confirmation dialogs present all files and associated directories that will be removed, ensuring safe deletion.
 
-- **Logging**:  
-  - Records errors and detailed process logs in `application_size_checker.log`.
-
----
-
-## Log File
-
-The script creates the log file `application_size_checker.log`, which records important events and error messages. In addition to error and debug messages, the log file contains the following information:
-
-- **Timestamps**:  
-  - **Script Start and End**: Timestamps are explicitly logged at the beginning and the end of the script using the `date` command.
-
-- **Debug Information**:  
-  - The sound path used by the script is logged at the start (e.g., `DEBUG: SOUND_PATH=...`).  
-  - Outputs of commands like `ls -l` (for instance, the contents of the sound directory) are recorded.
-
-- **Error Messages and Warnings**:  
-  - Detailed logs are kept for errors when accessing files or deleting applications (both in the main script and when removing associated files).  
-  - Notifications for failed or canceled sudo password prompts, as well as any unsuccessful Homebrew operations (e.g., during uninstallation), are logged.
-
-- **Progress Updates**:  
-  - During long-running operations (e.g., searching for applications, calculating sizes, or deleting files), progress updates and the corresponding process steps (e.g., "Deleting...", "Running 'sudo find'...") are recorded in the log file.
-
-This comprehensive logging provides a complete overview of the script's execution and helps you pinpoint where the process may have failed in case any issues occur.
+- **Internationalization & Localization:**
+  - A comprehensive translations module is integrated to render user‑facing strings in the user’s preferred language.
+  - The user can change the language dynamically through the language selection menu.
+  - Translations are provided for over 40 languages, making the tool accessible worldwide.
 
 ---
 
-## Homebrew
+## Project Structure
 
-For macOS users, a dedicated Homebrew tap is provided specifically for Mac Storage Manager. This tap ensures that the Homebrew formula is always up-to-date and error-free. You can check it out at the following link:
-
-[**NarekMosisian/homebrew-mac-storage-manager**](https://github.com/NarekMosisian/homebrew-mac-storage-manager)
-
-The tap also includes its own CI configuration to ensure continuous updates and error-free operation of the formula.
-
----
-
-## Watch the Demo
-
-<a href="https://www.youtube.com/watch?v=eO7GkXesK0Q&ab_channel=NarekMosisian">
-    <img src="./images/video.png" alt="Watch the Demo on YouTube" width="300"/>
-</a>
-
-> **Tip:** Hold down Ctrl (Windows/Linux) or Cmd (Mac) and click the image to open the video in a new tab.
-
-Click the image to watch the demo video on YouTube.
+\`\`\`plaintext
+/mac-storage-manager
+│
+├── config.sh              # Contains configuration variables and language settings
+├── deletion.sh            # Functions for deleting/uninstalling applications
+├── logging.sh             # Functions for logging, updating progress, and log file reconstruction
+├── main.sh                # Main entry point; sources all modules and starts the program
+├── menu.sh                # Implements the interactive UI menus and language selection
+├── size_calculations.sh   # Functions for calculating and formatting application sizes
+├── sound.sh               # Functions for playing sound feedback on key events
+├── sudo_utils.sh          # Sudo authentication and privileged command execution functions
+├── translations.sh        # Multi-language translations and helper functions
+└── README.md              # This file
+\`\`\`
 
 ---
 
-## Continuous Integration
+## Installation and Setup
 
-This project uses GitHub Actions for continuous integration. Every push and pull request to the `main` branch triggers a workflow that:
-- Updates Homebrew (ignoring non-critical warnings)
-- Installs dependencies (jq, newt)
-- **Taps the external Homebrew repository** ([NarekMosisian/mac-storage-manager](https://github.com/NarekMosisian/homebrew-mac-storage-manager))
-- Installs the `mac-storage-manager` formula
-- Runs tests (using `brew test mac-storage-manager`)
-- Performs a strict audit of the formula
+### Clone the Repository
 
-You can view the current CI status using the badge at the top.
+Clone the repository to your local machine:
+
+\`\`\`bash
+git clone https://github.com/NarekMosisian/mac-storage-manager.git
+\`\`\`
+
+### Make Scripts Executable
+
+After cloning, navigate to the project directory and run:
+
+\`\`\`bash
+cd mac-storage-manager
+chmod +x *.sh
+\`\`\`
+
+### Install Dependencies
+
+Ensure you have the following dependencies installed:
+
+- **jq** (for JSON parsing)
+- **newt/whiptail** (for interactive terminal dialogs)
+- **Sound utilities:**
+  - On macOS, the \`afplay\` command is used (usually pre‑installed).
+  - On Linux, \`paplay\` is used (install via your package manager).
+
+For macOS via Homebrew:
+
+\`\`\`bash
+brew install jq newt
+\`\`\`
+
+For Debian/Ubuntu (Linux):
+
+\`\`\`bash
+sudo apt-get update
+sudo apt-get install jq newt paplay
+\`\`\`
 
 ---
 
 ## How to Use
 
-### Step 1: Clone the Repository
+### Run the Project
 
-Clone the repository to your local machine:
+Start the application by running the main entry point:
 
-```bash
-git clone https://github.com/NarekMosisian/mac-storage-manager.git
-```
+\`\`\`bash
+./main.sh
+\`\`\`
 
-### Step 2: Make the Script Executable
+This script loads all modules, handles the language selection, and presents an interactive menu for scanning, selecting, and deleting applications.
 
-Navigate to the cloned directory and make the script executable by running:
+### Interactive Language Selection
 
-```bash
-chmod +x ./application_size_checker.sh
-```
+- Upon startup or via the main menu, you can select your preferred language.
+- The entire interface (dialogs, messages, and instructions) will be rendered in your chosen language.
+- This language selection persists across sessions.
 
-### Step 3: Install Dependencies
+---
 
-The script relies on several tools. Install them as follows:
+## Logging and Sudo Handling
 
-- **macOS** (using Homebrew):
+- Detailed logs are written to \`application_size_checker.log\` to capture every event and error.
+- Sudo handling is robust:
+  - Prompts for the sudo password when required.
+  - Validates and caches the sudo password for use in later commands.
+  - Retries up to three times before exiting on failure.
 
-```bash
-brew install jq newt
-```
+---
 
-- **Linux** (using your package manager or Linuxbrew):
+## Internationalization & Translations
 
-```bash
-# On Debian/Ubuntu-based systems:
-sudo apt-get update
-sudo apt-get install jq newt paplay
+- The \`translations.sh\` module includes all user‑visible strings in over 40 languages.
+- Use helper functions (e.g., \`get_text\`, \`get_yes_button\`, \`get_no_button\`, etc.) to retrieve localized strings.
+- Easily add new languages or update existing translations as needed.
 
-# Alternatively, if using Linuxbrew:
-brew install jq newt
-```
-Note: On macOS, afplay is used for audio, while on Linux paplay is used.
+---
 
-    jq: Parses JSON output from system commands.
-    newt: Provides terminal-based GUI dialogs (for interactive selection and progress bars).
+## Homebrew Support
 
-### Step 4: Run the Script
+- For macOS users, the script fully integrates with Homebrew:
+  - It calculates sizes for both Homebrew formulas and casks.
+  - It can uninstall applications using Homebrew commands if they were installed via Homebrew.
+  - Special handling is provided for applications like Docker.
+  - A dedicated Homebrew tap is provided specifically for Mac Storage Manager. This tap ensures that the Homebrew formula is always up-to-date and error-free. You can check it out at the following link:
 
-Launch the script by executing:
+[**NarekMosisian/homebrew-mac-storage-manager**](https://github.com/NarekMosisian/homebrew-mac-storage-manager)
 
-```bash
-./application_size_checker.sh
-```
 
-Or, explicitly with zsh:
+---
 
-```bash
-zsh ./application_size_checker.sh
-```
+## Continuous Integration
 
-Note: The script uses zsh. Ensure that zsh is installed and set as your default shell, or run the script explicitly with zsh:
-
-```bash
-zsh ./application_size_checker.sh
-```
-
-### Step 5: Follow the Interactive Prompt
-
-During the script's execution, you will be prompted with the following option:
-
-    Include sudo find: This step searches for all applications across the system but may take a long time to complete.
-
-Once the script has gathered the sizes of all applications, a graphical interface will appear, allowing you to select the applications you wish to delete. After selection, the script will:
-
-    Prompt for confirmation before deleting each application and its associated files.
-    Display the list of files and directories that will be removed for each application.
-    Prompt you for each category of associated files (Application Support, Preferences, Caches, Logs, Saved Application State) whether you want to delete them.
-    Optionally delete any additional files found via sudo find that are associated with the application.
+- The project uses GitHub Actions for continuous integration.
+- Every push and pull request triggers tests that:
+  - Ensure dependencies are installed,
+  - Validate Homebrew formula integrity,
+  - And test the functionality of the modular scripts.
+- Check the status badge at the top of this README for current CI status.
 
 ---
 
 ## Known Limitations and Common Issues
 
-- **Performance**: Searching the entire system with sudo find can be time-consuming and may strain system resources.
-- **Permissions**: Ensure you have the necessary permissions to uninstall applications and delete files.
-- **Security Warning**: Be cautious when deleting applications and files to avoid data loss.
-- **Shell Compatibility**: The script is written for zsh. Ensure you have zsh installed.
+- **Performance:** Scanning the entire filesystem with \`sudo find\` can be slow.
+- **Permissions:** Ensure you have sufficient permissions to delete system files.
+- **Interactive Dialogs:** The project uses whiptail/newt; make sure they are installed correctly on your system.
+- **Shell Compatibility:** It is recommended to use bash for running the scripts to ensure full compatibility.
 
 ---
 
@@ -286,3 +284,7 @@ This project is licensed under the **GNU Affero General Public License v3.0 (AGP
 This license ensures that anyone who modifies, uses, or redistributes this software—especially in a networked environment—must share the source code and any modifications under the same license.  
 
 For detailed information, see the [LICENSE](./LICENSE) file.
+
+---
+
+Enjoy your new, modular, and fully internationalized Mac Storage Manager!
