@@ -36,11 +36,6 @@ Mac Storage Manager is a shell script suite that helps you reclaim disk space by
   - Users can select one or more apps to delete using an interactive checklist UI.
   - Confirmation dialogs present all files and associated directories that will be removed, ensuring safe deletion.
 
-- **Internationalization & Localization:**
-  - Translations are provided for over 40 languages, making the tool accessible worldwide.
-
-  (Note that many language translations are experimental and may not yet be completely accurate or consistent. I welcome feedback from native speakers!)
-
 - **Cross‑Platform Application Discovery:**
   - Centralizes handling of `.app` vs. `.desktop` extensions and `APP_DIRS` for unified scanning and deletion on both macOS and Linux.
 
@@ -52,6 +47,13 @@ Mac Storage Manager is a shell script suite that helps you reclaim disk space by
 
 - **Main Menu Sound Toggle:**
   - Adds an on/off switch for audio feedback directly in the main menu, enabling quick control over sound notifications.
+
+- **Internationalization & Localization:**
+  - Translations are provided for over 40 languages, making the tool accessible worldwide.
+
+  (Note that many language translations are experimental and may not yet be completely accurate or consistent. I welcome feedback from native speakers!)
+
+<img src="./images/language.jpg" alt="Mac Storage Manager" width="640"/>
 
 ---
 
