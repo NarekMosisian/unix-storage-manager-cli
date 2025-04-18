@@ -42,6 +42,21 @@ if [ "$OS_TYPE" = "Linux" ]; then
     XDG_CACHE=${XDG_CACHE_HOME:-"$HOME/.cache"}
 fi
 
+APP_DIRS=()
+if [ "$OS_TYPE" = "Darwin" ]; then
+  APP_DIRS+=( "/Applications" "$HOME/Applications" )
+else
+  APP_DIRS+=( "/usr/share/applications" "$HOME/.local/share/applications" )
+fi
+
+if [ "$OS_TYPE" = "Darwin" ]; then
+  extension="app"
+else
+  extension="desktop"
+fi
+
+[ -n "$CUSTOM_APP_DIR" ] && APP_DIRS+=( "$CUSTOM_APP_DIR" )
+
 SOUND_PATH="./sounds"
 if [ -n "$MAC_STORAGE_MANAGER_SHARE" ]; then
     SOUND_PATH="$MAC_STORAGE_MANAGER_SHARE/sounds"
@@ -55,6 +70,18 @@ load_language() {
         echo "$CURRENT_LANG" > "$LANG_CONF_FILE"
     fi
 }
+
+if [ -f "sound.conf" ]; then
+    SOUND_ENABLED=$(<sound.conf)
+else
+    SOUND_ENABLED="on"
+    echo "$SOUND_ENABLED" > sound.conf
+fi
+
+save_sound_setting() {
+    echo "$SOUND_ENABLED" > "sound.conf"
+}
+
 load_language
 
 save_language() {
