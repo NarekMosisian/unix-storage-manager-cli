@@ -69,13 +69,17 @@ format_size() {
 calculate_actual_size() {
     local app_name="$1"
     local app_path=""
-    if [ "$OS_TYPE" = "Darwin" ]; then
-        app_path=$(find /Applications "$HOME/Applications" -maxdepth 1 -iname "${app_name}" 2>/dev/null | head -n 1)
-    elif [ "$OS_TYPE" = "Linux" ]; then
-        app_path=$(find /usr/share/applications "$HOME/.local/share/applications" -maxdepth 1 -iname "${app_name}" 2>/dev/null | head -n 1)
-    fi
+
+    for dir in "${APP_DIRS[@]}"; do
+      candidate=$(find "$dir" -maxdepth 1 -iname "$app_name" -print -quit 2>/dev/null)
+      if [ -n "$candidate" ]; then
+        app_path="$candidate"
+        break
+      fi
+    done
+
     if [ -n "$app_path" ]; then
-        calculate_size "$app_path"
+        du -sk "$app_path" 2>/dev/null | cut -f1
     else
         echo 0
     fi

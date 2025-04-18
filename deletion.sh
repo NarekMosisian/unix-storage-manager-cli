@@ -24,13 +24,81 @@ display_error() {
     --cancel-button "$(get_cancel_button)"
 }
 
+delete_via_package_manager() {
+    local pkg="$1"
+
+    # Debian/Ubuntu
+    if command -v dpkg &>/dev/null; then
+        if dpkg -l | grep -qi "^ii  $pkg"; then
+            if whiptail --title "$(get_text warning)" \
+                --yesno "$(printf "$(get_text pkgmgr_remove_confirm)" "$pkg")" 10 60 \
+                --yes-button "$(get_text yes)" \
+                --no-button "$(get_text no)"; then
+                sudo apt-get remove --purge -y "$pkg"
+                return $?
+            fi
+        fi
+    fi
+
+    # Fedora/RHEL/CentOS (dnf or yum)
+    if command -v rpm &>/dev/null; then
+        if rpm -q "$pkg" &>/dev/null; then
+            if whiptail --title "$(get_text warning)" \
+                --yesno "$(printf "$(get_text pkgmgr_remove_confirm)" "$pkg")" 10 60 \
+                --yes-button "$(get_text yes)" \
+                --no-button "$(get_text no)"; then
+                if command -v dnf &>/dev/null; then
+                    sudo dnf remove -y "$pkg"
+                else
+                    sudo yum remove -y "$pkg"
+                fi
+                return $?
+            fi
+        fi
+    fi
+
+    # Arch Linux (pacman)
+    if command -v pacman &>/dev/null; then
+        if pacman -Qi "$pkg" &>/dev/null; then
+            if whiptail --title "$(get_text warning)" \
+                --yesno "$(printf "$(get_text pkgmgr_remove_confirm)" "$pkg")" 10 60 \
+                --yes-button "$(get_text yes)" \
+                --no-button "$(get_text no)"; then
+                sudo pacman -Rs --noconfirm "$pkg"
+                return $?
+            fi
+        fi
+    fi
+
+    return 1
+}
+
 delete_application() {
     local app_name="$1"
     local app_path=""
     log_message "$(printf "$(get_text attempting_to_delete)" "$app_name")"
 
+    local CRITICAL_APPS
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        CRITICAL_APPS=("Finder.app" "Safari.app" "System Preferences.app" "Terminal.app" "Dock.app")
+    else
+        CRITICAL_APPS=("gnome-terminal.desktop" "org.gnome.Nautilus.desktop")
+    fi
+    for crit in "${CRITICAL_APPS[@]}"; do
+        if [[ "$app_name" == "$crit" ]]; then
+            display_error "$(printf "$(get_text critical_app_blocked)" "$app_name")"
+            log_message "Deletion of critical application $app_name blocked."
+            return 1
+        fi
+    done
+
     local normalized_name
     normalized_name=$(echo "$app_name" | sed 's/\.app$//I; s/\.desktop$//I' | tr '[:upper:]' '[:lower:]')
+
+    if delete_via_package_manager "$normalized_name"; then
+        log_message "Removed $normalized_name via package manager."
+        return 0
+    fi
 
     if [ "$app_name" = "Docker.app" ] || [ "$app_name" = "Docker.desktop" ]; then
         if command -v brew &>/dev/null && brew list --cask | grep -qi "^docker\$"; then
@@ -47,14 +115,18 @@ delete_application() {
             fi
         else
             log_message "$(get_text docker_not_installed_brew_manual)"
-            if [ "$OS_TYPE" = "Darwin" ]; then
-                app_path="/Applications/Docker.app"
-            else
-                app_path=""
-            fi
+            app_path=""
+            for dir in "${APP_DIRS[@]}"; do
+                candidate="$dir/Docker.app"
+                if [ -d "$candidate" ]; then
+                    app_path="$candidate"
+                    break
+                fi
+            done
             if [ -n "$app_path" ] && [ -d "$app_path" ]; then
                 log_message "$(printf "$(get_text found_docker_at)" "$app_path")"
-                echo "$SUDO_PASSWORD" | sudo -k -S rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
+                ensure_sudo_valid
+                sudo -k -S rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
                 if [ $? -eq 0 ]; then
                     log_message "$(printf "$(get_text successfully_deleted_path)" "$app_path")"
                 else
@@ -104,20 +176,24 @@ delete_application() {
         return
     fi
 
-    if [ "$OS_TYPE" = "Darwin" ]; then
-        app_path=$(find /Applications "$HOME/Applications" -maxdepth 1 -iname "$app_name" 2>/dev/null | head -n 1)
-    elif [ "$OS_TYPE" = "Linux" ]; then
-        app_path=$(find /usr/share/applications "$HOME/.local/share/applications" -maxdepth 1 -iname "$app_name" 2>/dev/null | head -n 1)
-    fi
+    app_path=""
+    for dir in "${APP_DIRS[@]}"; do
+      candidate=$(find "$dir" -maxdepth 1 -iname "$app_name" 2>/dev/null | head -n1)
+      if [ -n "$candidate" ]; then
+        app_path="$candidate"
+        break
+      fi
+    done
 
     if [ -z "$app_path" ]; then
         log_message "$(printf "$(get_text app_not_found_standard)" "$app_name")"
-        app_path=$(echo "$SUDO_PASSWORD" | sudo -k -S find / -iname "$app_name" -type d -maxdepth 3 2>/dev/null | head -n 1)
+        app_path=$(echo "ensure_sudo_valid" | sudo -k -S find / -iname "$app_name" -type d -maxdepth 3 2>/dev/null | head -n 1)
     fi
 
     if [ -n "$app_path" ]; then
         log_message "$(printf "$(get_text found_docker_at)" "$app_path")"
-        echo "$SUDO_PASSWORD" | sudo -k -S rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
+        ensure_sudo_valid
+        sudo -k -S rm -rf -- "$app_path" >> "$LOG_FILE" 2>&1
         if [ $? -eq 0 ]; then
             log_message "$(printf "$(get_text successfully_deleted_path)" "$app_path")"
         else
@@ -185,7 +261,7 @@ confirm_deletion() {
 
             whiptail --title "$(get_text log_file_status_title)" --msgbox "$(get_text log_file_updated_message)" 8 60 \
                 --ok-button "$(get_ok_button)" --cancel-button "$(get_cancel_button)"
-            SUDO_PASSWORD=""
+            ensure_sudo_valid=""
             main_menu
     else
         play_key_sound

@@ -97,42 +97,18 @@ gather_application_sizes() {
                 echo "$cask:$size"
             done > brew_cask_sizes.txt
         fi
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            update_progress 40 "Calculating sizes in /Applications..."
-            find /Applications -maxdepth 1 -name "*.app" -print0 | while IFS= read -r -d '' app; do
-                size=$(calculate_size "$app")
+        > applications_sizes.txt
+        for dir in "${APP_DIRS[@]}"; do
+          find "$dir" -maxdepth 1 -iname "*.${extension}" -print0 2>/dev/null \
+            | while IFS= read -r -d '' app; do
+                size=$(du -sk "$app" 2>/dev/null | cut -f1)
                 echo "$(basename "$app"):$size"
-            done > applications_sizes.txt
-            update_progress 60 "Calculating sizes in ~/Applications..."
-            find "$HOME/Applications" -maxdepth 1 -name "*.app" -print0 2>/dev/null | while IFS= read -r -d '' app; do
-                size=$(calculate_size "$app")
-                echo "$(basename "$app"):$size"
-            done > home_applications_sizes.txt
-        elif [ "$OS_TYPE" = "Linux" ]; then
-            update_progress 40 "Calculating sizes in /usr/share/applications..."
-            if [ -d "/usr/share/applications" ]; then
-                find /usr/share/applications -maxdepth 1 -name "*.desktop" -print0 | while IFS= read -r -d '' app; do
-                    size=$(calculate_size "$app")
-                    echo "$(basename "$app"):$size"
-                done > applications_sizes.txt
-            fi
-            update_progress 60 "Calculating sizes in ~/.local/share/applications..."
-            if [ -d "$HOME/.local/share/applications" ]; then
-                find "$HOME/.local/share/applications" -maxdepth 1 -name "*.desktop" -print0 2>/dev/null | while IFS= read -r -d '' app; do
-                    size=$(calculate_size "$app")
-                    echo "$(basename "$app"):$size"
-                done > home_applications_sizes.txt
-            fi
-        fi
+            done
+        done >> applications_sizes.txt
         if [ "$include_sudo_find" = true ]; then
             update_progress 85 "Running 'sudo find'..."
-            if [ "$OS_TYPE" = "Darwin" ]; then
-                extension="app"
-            else
-                extension="desktop"
-            fi
             local password
-            password=$(get_sudo_password)
+            password=$(ensure_sudo_valid)
             echo "$password" | sudo -k -S find / -iname "*.${extension}" -type d -maxdepth 5 -print0 2>/dev/null \
                 | sort -z -u \
                 | while IFS= read -r -d '' app; do

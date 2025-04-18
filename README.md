@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/NarekMosisian/mac-storage-manager/actions/workflows/ci.yml/badge.svg)
 
-Mac Storage Manager is now a fully modularized shell script suite that helps you reclaim disk space by identifying and managing large applications on your system. Originally created for macOS, this new version has been completely refactored and expanded for cross‑platform support on both macOS and Linux, and is now split into nine modular .sh files for improved maintainability, extensibility, and clarity.
+Mac Storage Manager is a shell script suite that helps you reclaim disk space by identifying and managing large applications on your macOS or Linux system.
 
 <img src="./images/msm.png" alt="Mac Storage Manager" width="640"/>
 
@@ -10,18 +10,12 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
 
 ## Table of Contents
 - [Features](#features)
-- [Project Structure](#project-structure)
 - [Installation and Setup](#installation-and-setup)
   - [Clone the Repository](#clone-the-repository)
   - [Make Scripts Executable](#make-scripts-executable)
   - [Install Dependencies](#install-dependencies)
-- [How to Use](#how-to-use)
-  - [Run the Project](#run-the-project)
-  - [Interactive Language Selection](#interactive-language-selection)
-- [Logging and Sudo Handling](#logging-and-sudo-handling)
-- [Internationalization & Translations](#internationalization--translations)
+- [Run the Project](#run-the-project)
 - [Homebrew Support](#homebrew-support)
-- [Continuous Integration](#continuous-integration)
 - [Known Limitations and Common Issues](#known-limitations-and-common-issues)
 - [Dependencies](#dependencies)
 - [What Exactly is Deleted](#what-exactly-is-deleted)
@@ -33,27 +27,8 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
 
 ## Features
 
-- **Cross-Platform Compatibility:**
-  - Scans standard application directories on both macOS and Linux.
-  - Supports Homebrew formulas and casks on macOS.
-  - Optionally performs a comprehensive system search using `sudo find`.
-
-- **Modular Design:**
-  - The project is now divided into 9 distinct shell scripts:
-    - **main.sh:** Entry point; sources all other modules.
-    - **deletion.sh:** Contains functions for uninstallation and deletion of applications.
-    - **menu.sh:** Implements the interactive user interface and main menu.
-    - **logging.sh:** Records process events, errors, and debugging information.
-    - **sudo_utils.sh:** Manages sudo authentication and command execution with privileges.
-    - **size_calculations.sh:** Calculates application sizes from various sources.
-    - **translations.sh:** Provides full internationalization (i18n) support with over 40 languages.
-    - **config.sh:** Manages configuration variables including language settings.
-    - **sound.sh:** Plays OS‑dependent sound feedback using either `afplay` (macOS) or `paplay` (Linux).
-  - This new modular architecture makes the project easier to maintain and extend.
-
 - **Enhanced Logging & Progress Feedback:**
   - Detailed logs (stored in `mac_storage_manager.log`) are generated throughout the operation.
-  - A dynamic progress gauge is displayed during long‑running operations.
   - Advanced error handling is provided via interactive whiptail dialogs and extensive logging.
 
 - **Interactive Application Deletion:**
@@ -62,31 +37,21 @@ Mac Storage Manager is now a fully modularized shell script suite that helps you
   - Confirmation dialogs present all files and associated directories that will be removed, ensuring safe deletion.
 
 - **Internationalization & Localization:**
-  - A comprehensive translations module is integrated to render user‑facing strings in the user’s preferred language.
-  - The user can change the language dynamically through the language selection menu.
   - Translations are provided for over 40 languages, making the tool accessible worldwide.
 
+  (Note that many language translations are experimental and may not yet be completely accurate or consistent. I welcome feedback from native speakers!)
 
-<img src="./images/language.jpg" alt="language selection" width="640"/>
+- **Cross‑Platform Application Discovery:**
+  - Centralizes handling of `.app` vs. `.desktop` extensions and `APP_DIRS` for unified scanning and deletion on both macOS and Linux.
 
----
+- **Package Manager Removal (Linux):**
+  - Introduces `delete_via_package_manager` to detect and uninstall via apt, dnf/yum, or pacman where available.
 
-## Project Structure
+- **Critical Application Protection:**
+  - Prevents deletion of essential system apps (e.g., Finder, Safari, gnome‑terminal) to avoid accidental damage.
 
-```plaintext
-/mac-storage-manager
-│
-├── config.sh              # Contains configuration variables and language settings
-├── deletion.sh            # Functions for uninstalling/deleting applications
-├── logging.sh             # Functions for logging, progress updates, and log file reconstruction
-├── main.sh                # Main entry point; sources all modules and starts the program
-├── menu.sh                # Implements interactive UI menus and language selection
-├── size_calculations.sh   # Functions for calculating/formatting application sizes
-├── sound.sh               # Functions for playing sound effects based on the operating system
-├── sudo_utils.sh          # Contains sudo authentication and execution with root privileges
-├── translations.sh        # Multilingual translations and helper functions
-└── README.md              # This file
-```
+- **Main Menu Sound Toggle:**
+  - Adds an on/off switch for audio feedback directly in the main menu, enabling quick control over sound notifications.
 
 ---
 
@@ -134,9 +99,7 @@ sudo apt-get install jq newt paplay
 
 ---
 
-## How to Use
-
-### Run the Project
+## Run the Project
 
 Start the application by running the main entry point:
 
@@ -144,55 +107,14 @@ Start the application by running the main entry point:
 ./main.sh
 ```
 
-This script loads all modules, handles the language selection, and presents an interactive menu for scanning, selecting, and deleting applications.
-
-### Interactive Language Selection
-
-- Upon startup or via the main menu, you can select your preferred language.
-- The entire interface (dialogs, messages, and instructions) will be rendered in your chosen language.
-- This language selection persists across sessions.
-
----
-
-## Logging and Sudo Handling
-
-- Detailed logs are written to `mac_storage_manager.log` to capture every event and error.
-- Sudo handling is robust:
-  - Prompts for the sudo password when required.
-  - Validates and caches the sudo password for use in later commands.
-  - Retries up to three times before exiting on failure.
-
----
-
-## Internationalization & Translations
-
-- The `translations.sh` module includes all user‑visible strings in over 40 languages.
-- Use helper functions (e.g., `get_text`, `get_yes_button`, `get_no_button`, etc.) to retrieve localized strings.
-- Easily add new languages or update existing translations as needed.
-
 ---
 
 ## Homebrew Support
 
-- For macOS users, the script fully integrates with Homebrew:
-  - It calculates sizes for both Homebrew formulas and casks.
-  - It can uninstall applications using Homebrew commands if they were installed via Homebrew.
-  - Special handling is provided for applications like Docker.
-  - A dedicated Homebrew tap is provided specifically for Mac Storage Manager. This tap ensures that the Homebrew formula is always up-to-date and error-free. You can check it out at the following link:
+A dedicated Homebrew tap is provided specifically for Mac Storage Manager. This tap ensures that the Homebrew formula is always up-to-date and error-free. You can check it out at the following link:
 
 [**NarekMosisian/homebrew-mac-storage-manager**](https://github.com/NarekMosisian/homebrew-mac-storage-manager)
 
-
----
-
-## Continuous Integration
-
-- The project uses GitHub Actions for continuous integration.
-- Every push and pull request triggers tests that:
-  - Ensure dependencies are installed,
-  - Validate Homebrew formula integrity,
-  - And test the functionality of the modular scripts.
-- Check the status badge at the top of this README for current CI status.
 
 ---
 
@@ -289,7 +211,3 @@ This project is licensed under the **GNU Affero General Public License v3.0 (AGP
 This license ensures that anyone who modifies, uses, or redistributes this software—especially in a networked environment—must share the source code and any modifications under the same license.  
 
 For detailed information, see the [LICENSE](./LICENSE) file.
-
----
-
-Enjoy your new, modular, and fully internationalized Mac Storage Manager!

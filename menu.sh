@@ -20,15 +20,17 @@
 calculate_actual_size() {
     local app_name="$1"
     local app_path=""
-    if [ "$OS_TYPE" = "Darwin" ]; then
-        app_path=$(find /Applications "$HOME/Applications" -maxdepth 1 -iname "${app_name}" 2>/dev/null | head -n 1)
-    elif [ "$OS_TYPE" = "Linux" ]; then
-        app_path=$(find /usr/share/applications "$HOME/.local/share/applications" -maxdepth 1 -iname "${app_name}" 2>/dev/null | head -n 1)
-    fi
+
+    for dir in "${APP_DIRS[@]}"; do
+      candidate=$(find "$dir" -maxdepth 1 -iname "$app_name" -print -quit 2>/dev/null)
+      if [ -n "$candidate" ]; then
+        app_path="$candidate"
+        break
+      fi
+    done
+
     if [ -n "$app_path" ]; then
-        local size
-        size=$(calculate_size "$app_path")
-        echo "$size"
+        du -sk "$app_path" 2>/dev/null | cut -f1
     else
         echo 0
     fi
@@ -157,12 +159,13 @@ interactive_app_selection() {
 main_menu() {
     local CHOICE
     CHOICE=$(whiptail --title "$(get_text main_menu_title)" \
-        --menu "$(get_text main_menu_prompt)" 15 60 2 \
-        --default-item "* " \
+        --menu "$(get_text main_menu_prompt)" 15 60 3 \
+        --default-item "°" \
         --ok-button "$(get_ok_button)" \
         --cancel-button "$(get_text exit_button)" \
-        "°" "$(get_text menu_option_start)" \
-        "°°" "$(get_text menu_option_language)" \
+        "°"   "$(get_text menu_option_start)" \
+        "°°"  "$(get_text menu_option_language)" \
+        "°°°" "$(get_text menu_option_sound)" \
         3>&1 1>&2 2>&3)
     local RETVAL=$?
     play_key_sound
@@ -177,14 +180,9 @@ main_menu() {
     fi
 
     case "$CHOICE" in
-        "°")
-            start_collection
-            ;;
-        "°°")
-            select_language
-            ;;
-        *)
-            exit 0
-            ;;
+        "°")   start_collection ;;
+        "°°")  select_language ;;
+        "°°°") toggle_sound ;;
+        *)     exit 0 ;;
     esac
 }
