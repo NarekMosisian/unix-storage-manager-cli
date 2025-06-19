@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# size_calculations.sh
 
 # ------------------------------------------------------------------------------------------------------
 # Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# config.sh
+set -euo pipefail
+IFS=$'\n\t'
 
 # ------------------------------------------------------------------------------------------------------
 # Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
@@ -21,6 +22,13 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export NCURSES_NO_UTF8_ACS=1
 
+# XDG Base Directories (available on both macOS and Linux)
+XDG_DATA="${XDG_DATA_HOME:-"$HOME/.local/share"}"
+XDG_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}"
+XDG_CACHE="${XDG_CACHE_HOME:-"$HOME/.cache"}"
+
+FIND_METHOD_FILE="find_method.conf"
+
 LANG_CONF_FILE="language.conf"
 CURRENT_LANG="English"
 
@@ -36,30 +44,24 @@ if [ "$OS_TYPE" != "Darwin" ] && [ "$OS_TYPE" != "Linux" ]; then
     exit 1
 fi
 
-if [ "$OS_TYPE" = "Linux" ]; then
-    XDG_DATA=${XDG_DATA_HOME:-"$HOME/.local/share"}
-    XDG_CONFIG=${XDG_CONFIG_HOME:-"$HOME/.config"}
-    XDG_CACHE=${XDG_CACHE_HOME:-"$HOME/.cache"}
-fi
-
 APP_DIRS=()
 if [ "$OS_TYPE" = "Darwin" ]; then
-  APP_DIRS+=( "/Applications" "$HOME/Applications" )
+    APP_DIRS+=( "/Applications" "$HOME/Applications" )
 else
-  APP_DIRS+=( "/usr/share/applications" "$HOME/.local/share/applications" )
+    APP_DIRS+=( "/usr/share/applications" "$HOME/.local/share/applications" )
 fi
 
 if [ "$OS_TYPE" = "Darwin" ]; then
-  extension="app"
+    extension="app"
 else
-  extension="desktop"
+    extension="desktop"
 fi
 
-[ -n "$CUSTOM_APP_DIR" ] && APP_DIRS+=( "$CUSTOM_APP_DIR" )
+[ -n "${CUSTOM_APP_DIR:-}" ] && APP_DIRS+=( "${CUSTOM_APP_DIR}" )
 
 SOUND_PATH="./sounds"
-if [ -n "$MAC_STORAGE_MANAGER_SHARE" ]; then
-    SOUND_PATH="$MAC_STORAGE_MANAGER_SHARE/sounds"
+if [ -n "${MAC_STORAGE_MANAGER_SHARE:-}" ]; then
+    SOUND_PATH="${MAC_STORAGE_MANAGER_SHARE}/sounds"
 fi
 
 load_language() {

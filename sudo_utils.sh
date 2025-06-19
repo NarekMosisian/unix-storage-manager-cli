@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# sudo_utils.sh
+set -euo pipefail
+IFS=$'\n\t'
 
 # ------------------------------------------------------------------------------------------------------
 # Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
@@ -19,35 +20,31 @@
 
 ensure_sudo_valid() {
     local attempts=0
+    local password
     while true; do
-        local password
-        password=$(whiptail --passwordbox "$(get_text please_enter_your_sudo_password)" 8 60 3>&1 1>&2 2>&3)
-        if [ $? -ne 0 ] || [ -z "$password" ]; then
-            log_message "Sudo password not provided or canceled."
-            display_error "Sudo password not provided or canceled."
-            exit 1
+        if ! password=$(whiptail --passwordbox "$(get_text please_enter_your_sudo_password)" 8 60 3>&1 1>&2 2>&3); then
+            log_message "Sudo password dialog canceled."
+            main_menu
+            return 1
         fi
-        play_key_sound
-        echo "$password" | sudo -k -S -v 2>/dev/null
-        if [ $? -eq 0 ]; then
+        if [ -z "$password" ]; then
+            display_error "$(get_text critical_error_sudo_failed_associated)"
+            main_menu
+            return 1
+        fi
+
+        if echo "$password" | sudo -S -v >/dev/null 2>&1; then
             unset password
             return 0
         fi
+
         attempts=$((attempts + 1))
-        log_message "$(printf "$(get_text invalid_sudo_password_attempts)" "$attempts")"
         display_error "$(printf "$(get_text invalid_sudo_password_attempts)" "$attempts")"
-        unset password
+
         if [ $attempts -ge 3 ]; then
-            log_message "$(get_text failed_obtain_sudo_after_3_exiting)"
             display_error "$(get_text failed_obtain_sudo_after_3_exiting)"
-            exit 1
+            main_menu
+            return 1
         fi
     done
-}
-
-run_sudo_command() {
-    local password
-    password=$(ensure_sudo_valid)
-    echo "$password" | sudo -k -S "$@" 2>/dev/null
-    unset password
 }
