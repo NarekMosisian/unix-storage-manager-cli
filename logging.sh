@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# logging.sh
 
 # ------------------------------------------------------------------------------------------------------
 # Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)

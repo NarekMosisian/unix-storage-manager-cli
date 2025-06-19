@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
 # ------------------------------------------------------------------------------------------------------
 # Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
@@ -16,36 +18,17 @@
 #  This requirement is mandated by the terms of the AGPL-3.0 license.
 # ------------------------------------------------------------------------------------------------------
 
-play_key_sound() {
-    if [ "$SOUND_ENABLED" = "on" ]; then
-        if [ -f "$SOUND_PATH/switch.wav" ]; then
-            $SOUND_PLAYER "$SOUND_PATH/switch.wav" &
-        else
-            log_message "Sound file not found: $SOUND_PATH/switch.wav"
-        fi
-    fi
-}
-
-toggle_sound() {
-    if [ "$SOUND_ENABLED" = "on" ]; then
-        btn_label="$(get_text sound_off_button)"
-    else
-        btn_label="$(get_text sound_on_button)"
+show_delete_history() {
+    local tmpfile
+    tmpfile=$(mktemp)
+    if ! grep -F "Deleted application" "$LOG_FILE" | tac > "$tmpfile"; then
+        echo "$(get_text delete_history_not_found)" > "$tmpfile"
     fi
 
-    whiptail --title "$(get_text sound_title)" \
-             --msgbox "$(printf "$(get_text sound_status_message)" "$SOUND_ENABLED")" 8 60 \
-             --ok-button "$btn_label"
-
-    if [ "$SOUND_ENABLED" = "on" ]; then
-        SOUND_ENABLED="off"
-    else
-        SOUND_ENABLED="on"
-    fi
-    save_sound_setting
-
-    play_key_sound
+    whiptail --title "$(get_text delete_history_title) ($(get_text delete_history_only_by_this_script))" \
+             --textbox "$tmpfile" 20 78 \
+             --ok-button "$(get_ok_button)"
+    rm -f "$tmpfile"
 
     main_menu
 }
-

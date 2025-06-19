@@ -27,6 +27,16 @@ Mac Storage Manager is a shell script suite that helps you reclaim disk space by
 
 ## Features
 
+### New in Version 3.2.0
+The following additions are brand‑new since the previous release while keeping all legacy functionality intact:
+
+- **Delete‑History Viewer:** A new *Delete History* menu item shows every application MSM has removed, with timestamps.
+- **Optimised ↔ Full sudo Scans:** Choose between a lightning‑fast mount‑aware search or an exhaustive full‑disk crawl; your preference is remembered.
+- **User‑Scope Linux Support:** MSM now scans `~/.local/share/applications` so apps installed just for your user account are included.
+- **Strict Bash Mode:** All scripts execute with `set -euo pipefail` and a safe `IFS` to catch silent failures early.
+- **Smarter Homebrew Uninstall:** If a formula refuses to uninstall, MSM automatically retries using `brew uninstall --ignore-dependencies`.
+- **Richer Logging & Sudo Handling:** Deletions are timestamped for the history viewer and the sudo prompt now allows three attempts before safely returning to the menu.
+
 - **Enhanced Logging & Progress Feedback:**
   - Detailed logs (stored in `mac_storage_manager.log`) are generated throughout the operation.
   - Advanced error handling is provided via interactive whiptail dialogs and extensive logging.
