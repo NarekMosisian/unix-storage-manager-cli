@@ -70,14 +70,11 @@ handle_sudo_find() {
         play_key_sound
         include_sudo_find=true
 
-        local default_flag="--defaultno"
-        [ "$prev" = "full" ] && default_flag="--defaultyes"
-
-        if whiptail --title "$(get_text select_scan_type_title)" $default_flag \
-                     --yesno "$(get_text select_scan_type_message)" \
-                     16 70 \
-                     --yes-button "full" \
-                     --no-button "optimized"; then
+        if whiptail --title "$(get_text select_scan_type_title)" --defaultno \
+           --yesno "$(get_text select_scan_type_message)" \
+           16 70 \
+           --yes-button "full" \
+           --no-button "optimized"; then
             scan_type="full"
         else
             scan_type="optimized"
