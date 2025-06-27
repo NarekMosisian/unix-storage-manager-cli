@@ -82,7 +82,7 @@ reconstruct_log_entries() {
             awk '
             BEGIN { prev = "" }
             {
-                if (match($0, /^(.*)[[:blank:]]+size:[[:blank:]]+(.*)$/, arr)) {
+                if (match($0, /^(.*)[[:space:]]+size:[[:space:]]+(.*)$/, arr)) {
                     name = arr[1]
                     size = arr[2]
                     if (size == "0B") {
