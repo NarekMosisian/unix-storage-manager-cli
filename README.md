@@ -213,7 +213,7 @@ Please read the following carefully before using the script:
 
 ## Connect with me
 
-If you have any questions or want to discuss the project further, feel free to connect with me on [narekmosisian.com](narekmosisian.com).
+If you have any questions or want to discuss the project further, feel free to connect with me on [narekmosisian.com](https://narekmosisian.com/).
 
 ---
 
