@@ -213,7 +213,7 @@ Please read the following carefully before using the script:
 
 ## Connect with me
 
-If you have any questions or want to discuss the project further, feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/narek-mosisian-484789291/).
+If you have any questions or want to discuss the project further, feel free to connect with me on [narekmosisian.com](narekmosisian.com).
 
 ---
 
