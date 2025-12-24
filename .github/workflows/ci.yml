@@ -16,18 +16,18 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Add your external Tap
-        run: brew tap NarekMosisian/mac-storage-manager
+        run: brew tap NarekMosisian/unix-storage-manager-cli
 
       - name: Update Homebrew
         run: brew update || true
 
       - name: Install formula from your Tap
-        run: brew install --build-from-source mac-storage-manager
+        run: brew install --build-from-source unix-storage-manager-cli
 
       - name: Run tests
         run: |
-          brew test mac-storage-manager
-          brew audit --strict mac-storage-manager
+          brew test unix-storage-manager-cli
+          brew audit --strict unix-storage-manager-cli
 
   linux:
     runs-on: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
       - name: Add your external Tap
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew tap NarekMosisian/mac-storage-manager
+          brew tap NarekMosisian/unix-storage-manager-cli
 
       - name: Update Homebrew and run doctor
         run: |
@@ -65,15 +65,15 @@ jobs:
       - name: Uninstall previous version (if any)
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew uninstall mac-storage-manager || true
+          brew uninstall unix-storage-manager-cli || true
 
       - name: Build and install formula from your Tap
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install --build-from-source narekmosisian/mac-storage-manager/mac-storage-manager
+          brew install --build-from-source narekmosisian/unix-storage-manager-cli/unix-storage-manager-cli
 
       - name: Run tests
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew test narekmosisian/mac-storage-manager/mac-storage-manager
-          brew audit --strict narekmosisian/mac-storage-manager/mac-storage-manager
+          brew test narekmosisian/unix-storage-manager-cli/unix-storage-manager-cli
+          brew audit --strict narekmosisian/unix-storage-manager-cli/unix-storage-manager-cli

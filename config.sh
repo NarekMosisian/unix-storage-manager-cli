@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
 set -euo pipefail
 IFS=$'\n\t'
 
 # ------------------------------------------------------------------------------------------------------
-# Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
+# Unix Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
 #
 #  This script was created by Narek Mosisian. For more information, visit:
-#      https://github.com/NarekMosisian/mac-storage-manager
-#  © 2024 Narek Mosisian. All rights reserved.
+#      https://github.com/NarekMosisian/unix-storage-manager-cli
 #
 #  This script is licensed under the AGPL-3.0 license.
 # ------------------------------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ FIND_METHOD_FILE="find_method.conf"
 LANG_CONF_FILE="language.conf"
 CURRENT_LANG="English"
 
-LOG_FILE="mac_storage_manager.log"
+LOG_FILE="unix_storage_manager.log"
 if [ ! -f "$LOG_FILE" ]; then
     touch "$LOG_FILE"
 fi

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 # ------------------------------------------------------------------------------------------------------
-# Mac Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
+# Unix Storage Manager - Cross-Platform internationalized Version (macOS/Linux)
 #
 #  This script was created by Narek Mosisian. For more information, visit:
-#      https://github.com/NarekMosisian/mac-storage-manager
-#  © 2024 Narek Mosisian. All rights reserved.
+#      https://github.com/NarekMosisian/unix-storage-manager-cli
 #
 #  This script is licensed under the AGPL-3.0 license.
 # ------------------------------------------------------------------------------------------------------

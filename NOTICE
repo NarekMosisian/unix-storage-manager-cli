@@ -1,0 +1,17 @@
+Unix Storage Manager (Unix Storage Manager CLI)
+Copyright (C) 2024-2025 Narek Mosisian
+
+Source repository:
+https://github.com/NarekMosisian/unix-storage-manager-cli
+
+License:
+This project is licensed under the GNU Affero General Public License v3.0 or later
+(SPDX: AGPL-3.0-or-later). See the LICENSE file.
+
+Notice preservation / attribution:
+- Copyright notices, license notices, and this NOTICE file must be retained in all
+  copies or substantial portions of the Software.
+- Modified versions should be clearly marked as modified.
+
+Preferred attribution (non-binding request):
+"Unix Storage Manager by Narek Mosisian (https://github.com/NarekMosisian/unix-storage-manager-cli)"

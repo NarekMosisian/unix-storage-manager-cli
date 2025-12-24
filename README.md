@@ -1,15 +1,17 @@
-# Mac Storage Manager – Cross-Platform (macOS & Linux)
+# Unix Storage Manager – Cross-Platform CLI (macOS & Linux)
 
-![CI](https://github.com/NarekMosisian/mac-storage-manager/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/NarekMosisian/unix-storage-manager-cli/actions/workflows/ci.yml/badge.svg)
 
-Mac Storage Manager is a shell script suite that helps you reclaim disk space by identifying and managing large applications on your macOS or Linux system.
+Unix Storage Manager is a shell script suite that helps you reclaim disk space by identifying and managing large applications on your macOS or Linux system.
 
-<img src="./images/msm.png" alt="Mac Storage Manager" width="640"/>
+<img src="./images/msm.png" alt="Unix Storage Manager" width="640"/>
 
 ---
 
 ## Table of Contents
+
 - [Features](#features)
+- [Supported Operating Systems](#supported-operating-systems)
 - [Installation and Setup](#installation-and-setup)
   - [Clone the Repository](#clone-the-repository)
   - [Make Scripts Executable](#make-scripts-executable)
@@ -20,6 +22,7 @@ Mac Storage Manager is a shell script suite that helps you reclaim disk space by
 - [Dependencies](#dependencies)
 - [What Exactly is Deleted](#what-exactly-is-deleted)
 - [Warning](#warning)
+- [Trademark and Affiliation Notice](#trademark-and-affiliation-notice)
 - [Connect with me](#connect-with-me)
 - [License](#license)
 
@@ -27,19 +30,20 @@ Mac Storage Manager is a shell script suite that helps you reclaim disk space by
 
 ## Features
 
-### -> New in Version 3.2.0 <-
+### -> New in Version 3.2.0 <-
+
 The following additions are brand‑new since the previous release while keeping all legacy functionality intact:
 
-- **Delete‑History Viewer:** A new *Delete History* menu item shows every application MSM has removed, with timestamps.
+- **Delete‑History Viewer:** A new *Delete History* menu item shows every application the tool removed, with timestamps.
 - **Optimized ↔ Full sudo Scans:** Choose between a lightning‑fast mount‑aware search or an exhaustive full‑disk crawl; your preference is remembered.
-- **User‑Scope Linux Support:** MSM now scans `~/.local/share/applications` so apps installed just for your user account are included.
-- **Strict Bash Mode:** All scripts execute with `set -euo pipefail` and a safe `IFS` to catch silent failures early.
-- **Smarter Homebrew Uninstall:** If a formula refuses to uninstall, MSM automatically retries using `brew uninstall --ignore-dependencies`.
-- **Richer Logging & Sudo Handling:** Deletions are timestamped for the history viewer and the sudo prompt now allows three attempts before safely returning to the menu.
+- **User‑Scope Linux Support:** Scans `~/.local/share/applications` so apps installed just for your user account are included.
+- **Strict Bash Mode:** All scripts execute with `set -euo pipefail` and a safe `IFS` to catch silent failures early.
+- **Smarter Homebrew Uninstall:** If a formula refuses to uninstall, the tool retries using `brew uninstall --ignore-dependencies`.
+- **Richer Logging & Sudo Handling:** Deletions are timestamped for the history viewer and the sudo prompt allows three attempts before safely returning to the menu.
 
 - **Enhanced Logging & Progress Feedback:**
-  - Detailed logs (stored in `mac_storage_manager.log`) are generated throughout the operation.
-  - Advanced error handling is provided via interactive whiptail dialogs and extensive logging.
+  - Detailed logs (stored in `unix_storage_manager.log`) are generated throughout the operation.
+  - Advanced error handling is provided via interactive `whiptail` dialogs and extensive logging.
 
 - **Interactive Application Deletion:**
   - Applications are listed with calculated sizes (including Homebrew formulas and casks).
@@ -47,10 +51,10 @@ The following additions are brand‑new since the previous release while keeping
   - Confirmation dialogs present all files and associated directories that will be removed, ensuring safe deletion.
 
 - **Cross‑Platform Application Discovery:**
-  - Centralizes handling of `.app` vs. `.desktop` extensions and `APP_DIRS` for unified scanning and deletion on both macOS and Linux.
+  - Centralizes handling of `.app` vs. `.desktop` extensions and search roots for unified scanning and deletion on both macOS and Linux.
 
 - **Package Manager Removal (Linux):**
-  - Introduces `delete_via_package_manager` to detect and uninstall via apt, dnf/yum, or pacman where available.
+  - Detects and uninstalls via `apt`, `dnf`/`yum`, or `pacman` where available.
 
 - **Critical Application Protection:**
   - Prevents deletion of essential system apps (e.g., Finder, Safari, gnome‑terminal) to avoid accidental damage.
@@ -59,11 +63,17 @@ The following additions are brand‑new since the previous release while keeping
   - Adds an on/off switch for audio feedback directly in the main menu, enabling quick control over sound notifications.
 
 - **Internationalization & Localization:**
-  - Translations are provided for over 40 languages, making the tool accessible worldwide.
+  - Translations are provided for many languages.
+  - Many language translations are experimental and may not yet be completely accurate or consistent. Feedback from native speakers is welcome.
 
-  (Note that many language translations are experimental and may not yet be completely accurate or consistent. I welcome feedback from native speakers!)
+<img src="./images/language.jpg" alt="Unix Storage Manager language selection" width="640"/>
 
-<img src="./images/language.jpg" alt="Mac Storage Manager" width="640"/>
+---
+
+## Supported Operating Systems
+
+- **macOS:** Systems that provide `bash`, `du`, `find`, and (optionally) Homebrew.
+- **Linux:** Distributions that provide `bash`, `du`, `find`, `jq`, and `whiptail`/`newt` (package names vary).
 
 ---
 
@@ -74,7 +84,7 @@ The following additions are brand‑new since the previous release while keeping
 Clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/NarekMosisian/mac-storage-manager.git
+git clone https://github.com/NarekMosisian/unix-storage-manager-cli.git
 ```
 
 ### Make Scripts Executable
@@ -82,7 +92,7 @@ git clone https://github.com/NarekMosisian/mac-storage-manager.git
 After cloning, navigate to the project directory and run:
 
 ```bash
-cd mac-storage-manager
+cd unix-storage-manager-cli
 chmod +x *.sh
 ```
 
@@ -123,10 +133,9 @@ Start the application by running the main entry point:
 
 ## Homebrew Support
 
-A dedicated Homebrew tap is provided specifically for Mac Storage Manager. This tap ensures that the Homebrew formula is always up-to-date and error-free. You can check it out at the following link:
+A dedicated Homebrew tap can be provided for Unix Storage Manager. This tap ensures that the Homebrew formula is always up-to-date and error-free.
 
-[**NarekMosisian/homebrew-mac-storage-manager**](https://github.com/NarekMosisian/homebrew-mac-storage-manager)
-
+- Tap repository: **NarekMosisian/homebrew-unix-storage-manager-cli**
 
 ---
 
@@ -134,8 +143,8 @@ A dedicated Homebrew tap is provided specifically for Mac Storage Manager. This 
 
 - **Performance:** Scanning the entire filesystem with `sudo find` can be slow.
 - **Permissions:** Ensure you have sufficient permissions to delete system files.
-- **Interactive Dialogs:** The project uses whiptail/newt; make sure they are installed correctly on your system.
-- **Shell Compatibility:** It is recommended to use bash for running the scripts to ensure full compatibility.
+- **Interactive Dialogs:** The project uses `whiptail`/`newt`; make sure they are installed correctly on your system.
+- **Shell Compatibility:** It is recommended to use `bash` for running the scripts to ensure full compatibility.
 
 ---
 
@@ -156,47 +165,49 @@ Make sure these dependencies are installed before running the script.
 
 When you confirm the deletion of an application, the script attempts to thoroughly remove it by deleting:
 
-- **Main Application Files**: 
-    - **On macOS**: The application bundle from `/Applications` and `~/Applications`.
-    - **On Linux**: The corresponding .desktop files from `/usr/share/applications` or `~/.local/share/` applications.
+- **Main Application Files**
+  - **On macOS:** The application bundle from `/Applications` and `~/Applications`.
+  - **On Linux:** The corresponding `.desktop` files from `/usr/share/applications` or `~/.local/share/applications`.
 
-- **Homebrew Files** (macOS only):
-    - Uninstalls associated Homebrew formulas and casks installed via Homebrew.
+- **Homebrew Files** (macOS only)
+  - Uninstalls associated Homebrew formulas and casks installed via Homebrew.
 
 **Associated Files and Directories**:
-- **macOS**:
-    - **Application Support** (optional):
-        - `~/Library/Application Support/<Application Name>`
-        - `/Library/Application Support/<Application Name>`
-    - **Preferences** (optional):
-        - `~/Library/Preferences/com.<Application Name>.*`
-        - `/Library/Preferences/com.<Application Name>.*`
-    - **Caches** (optional):
-        - `~/Library/Caches/<Application Name>`
-        - `~/Library/Caches/com.<Application Name>.*`
-        - `/Library/Caches/<Application Name>`
-        - `/Library/Caches/com.<Application Name>.*`
-    - **Logs** (optional):
-        - `~/Library/Logs/<Application Name>`
-        - `/Library/Logs/<Application Name>`
-    - **Saved Application State** (optional):
-        - `~/Library/Saved Application State/com.<Application Name>.*`
-        - `/Library/Saved Application State/com.<Application Name>.*`
 
-- **Linux**:
-    - **Application Data** (optional):
-        - `$XDG_DATA_HOME/<AppName>`
-        - `~/.local/share/<AppName>`
-    - **Configuration Files** (optional):
-        - `$XDG_CONFIG_HOME/<AppName>`
-        - `~/.config/<AppName>`
-    - **Cache Files** (optional):
-        - `$XDG_CACHE_HOME/<AppName>`
-        - `~/.cache/<AppName>`
-    - **Log Files** (optional):
-        - Common log directories (if any) related to the application
+- **macOS**
+  - **Application Support** (optional):
+    - `~/Library/Application Support/<Application Name>`
+    - `/Library/Application Support/<Application Name>`
+  - **Preferences** (optional):
+    - `~/Library/Preferences/com.<Application Name>.*`
+    - `/Library/Preferences/com.<Application Name>.*`
+  - **Caches** (optional):
+    - `~/Library/Caches/<Application Name>`
+    - `~/Library/Caches/com.<Application Name>.*`
+    - `/Library/Caches/<Application Name>`
+    - `/Library/Caches/com.<Application Name>.*`
+  - **Logs** (optional):
+    - `~/Library/Logs/<Application Name>`
+    - `/Library/Logs/<Application Name>`
+  - **Saved Application State** (optional):
+    - `~/Library/Saved Application State/com.<Application Name>.*`
+    - `/Library/Saved Application State/com.<Application Name>.*`
 
-- **Additional Files Found via `sudo find` (optional)**: Any files matching the application name found during the `sudo find` operation (if you chose to include this step). The script will display these files and ask for your confirmation before deletion.
+- **Linux**
+  - **Application Data** (optional):
+    - `$XDG_DATA_HOME/<AppName>`
+    - `~/.local/share/<AppName>`
+  - **Configuration Files** (optional):
+    - `$XDG_CONFIG_HOME/<AppName>`
+    - `~/.config/<AppName>`
+  - **Cache Files** (optional):
+    - `$XDG_CACHE_HOME/<AppName>`
+    - `~/.cache/<AppName>`
+  - **Log Files** (optional):
+    - Common log directories (if any) related to the application.
+
+- **Additional Files Found via `sudo find` (optional):**
+  - Any files matching the application name found during the `sudo find` operation (if you chose to include this step). The script will display these files and ask for your confirmation before deletion.
 
 ---
 
@@ -204,10 +215,18 @@ When you confirm the deletion of an application, the script attempts to thorough
 
 Please read the following carefully before using the script:
 
-- **Data Loss Risk**: The script performs a thorough deletion of applications and their associated files. Be cautious when selecting applications to delete. Ensure that you do not remove essential system applications or files.
-- **Review Before Deleting**: Before any files are deleted, the script will display a list of files and directories that will be removed. Please review this list carefully to avoid unintended deletions.
-- **No Undo**: Deleting applications and files is permanent and cannot be undone. Consider backing up important data before proceeding.
-- **Use at Your Own Risk**: The script is provided "as is," without warranty of any kind. The author is not responsible for any damage or data loss that may occur as a result of using this script.
+- **Data Loss Risk:** The script performs a thorough deletion of applications and their associated files. Be cautious when selecting applications to delete. Ensure that you do not remove essential system applications or files.
+- **Review Before Deleting:** Before any files are deleted, the script will display a list of files and directories that will be removed. Please review this list carefully to avoid unintended deletions.
+- **No Undo:** Deleting applications and files is permanent and cannot be undone. Consider backing up important data before proceeding.
+- **Use at Your Own Risk:** The script is provided "as is," without warranty of any kind. The author is not responsible for any damage or data loss that may occur as a result of using this script.
+
+---
+
+## Trademark and Affiliation Notice
+
+Apple, Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries and regions.
+
+This project is not affiliated with, endorsed, or sponsored by Apple Inc.
 
 ---
 
@@ -219,7 +238,8 @@ If you have any questions or want to discuss the project further, feel free to c
 
 ## License
 
-This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.  
-This license ensures that anyone who modifies, uses, or redistributes this software—especially in a networked environment—must share the source code and any modifications under the same license.  
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.
 
-For detailed information, see the [LICENSE](./LICENSE) file.
+This license ensures that anyone who modifies, uses, or redistributes this software—especially in a networked environment—must share the source code and any modifications under the same license.
+
+For detailed information, see the [LICENSE](./LICENSE) file and the [NOTICE](./NOTICE) file.
