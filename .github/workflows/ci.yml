@@ -70,10 +70,10 @@ jobs:
       - name: Build and install formula from your Tap
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install --build-from-source narekmosisian/unix-storage-manager-cli/unix-storage-manager-cli
+          brew install --build-from-source unix-storage-manager-cli
 
       - name: Run tests
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew test narekmosisian/unix-storage-manager-cli/unix-storage-manager-cli
-          brew audit --strict narekmosisian/unix-storage-manager-cli/unix-storage-manager-cli
+          brew test unix-storage-manager-cli
+          brew audit --strict unix-storage-manager-cli
